@@ -1,0 +1,46 @@
+services:
+  db:
+    image: mariadb:11
+    env_file: .env
+    volumes:
+      - db-data:/var/lib/mysql
+
+  wordpress:
+    build:
+      context: ./services/wordpress
+    image: wordpress:6.8.2-php8.4-apache
+    env_file: .env
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE}
+      WORDPRESS_DB_USER: ${MYSQL_USER}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - wp-data:/var/www/html
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/graphql"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  frontend:                     # you can rename this to "web" or "nextjs" if you prefer
+    build:
+      context: .                # <-- now points at the monorepo root
+      dockerfile: Dockerfile    # <-- picks up the file you just created
+      target: runner
+    env_file: .env
+    environment:
+      NEXT_PUBLIC_WP_API_URL: http://wordpress/graphql
+    ports:
+      - "3000:3000"
+    depends_on:
+      wordpress:
+        condition: service_healthy
+
+volumes:
+  db-data:
+  wp-data:

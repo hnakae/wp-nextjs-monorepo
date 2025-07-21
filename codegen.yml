@@ -1,0 +1,14 @@
+schema: "http://localhost:8080/graphql"
+
+documents:
+  - "app/**/*.{ts,tsx}"
+  - "lib/**/*.{ts,tsx,graphql}"    # include both TS files and .graphql files
+
+generates:
+  lib/generated/graphql.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-graphql-request
+    config:
+      skipTypename: false

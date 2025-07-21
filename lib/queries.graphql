@@ -1,0 +1,33 @@
+# lib/queries.graphql
+
+# Fetch the latest posts
+query GetLatestPosts($first: Int!) {
+  posts(first: $first) {
+    nodes {
+      id
+      title
+      slug
+      date
+    }
+  }
+}
+
+# Fetch a single post by slug
+query GetPostBySlug($slug: String!) {
+  postBy(slug: $slug) {
+    id
+    title
+    content
+    date
+    slug
+  }
+}
+
+# Get all slugs for SSG
+query GetAllPostSlugs {
+  posts(first: 100) {
+    nodes {
+      slug
+    }
+  }
+}
