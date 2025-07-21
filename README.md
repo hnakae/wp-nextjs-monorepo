@@ -1,36 +1,72 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WP Next.js Monorepo
+
+This is a monorepo containing a Next.js frontend application and a Dockerized WordPress backend, designed to demonstrate how to build a decoupled WordPress site using GraphQL.
+
+## Info
+
+*   **Next.js Frontend**: Accessible at `http://localhost:3001` (or `http://localhost:3000` if port 3001 is not available).
+*   **WordPress Admin**: Accessible at `http://localhost:8080/wp-admin`.
 
 ## Getting Started
 
-First, run the development server:
+Follow these steps to set up and run the project locally:
+
+### Prerequisites
+
+*   [Docker](https://www.docker.com/get-started) (Docker Desktop recommended)
+*   [Node.js](https://nodejs.org/en/download/) and npm (or yarn/pnpm/bun)
+
+### 1. Start Docker Containers
+
+Navigate to the project root directory and bring up the Docker containers:
+
+```bash
+npm run docker:up
+```
+
+This will start the MariaDB database, WordPress, and the Next.js frontend containers.
+
+### 2. Set up WordPress
+
+Once the WordPress container is running, you need to complete its setup:
+
+1.  **Access WordPress Installation**: Open your web browser and go to `http://localhost:8080`. Follow the on-screen instructions to complete the WordPress installation (e.g., set site title, admin username, password).
+2.  **Install and Activate WPGraphQL Plugin**:
+    *   Log in to your WordPress admin dashboard (`http://localhost:8080/wp-admin`).
+    *   Go to `Plugins` -> `Add New`.
+    *   Search for `WPGraphQL`.
+    *   Install and activate the plugin.
+3.  **Enable Public Introspection for WPGraphQL**:
+    *   In the WordPress admin, go to `GraphQL` -> `Settings`.
+    *   Under the `General` tab, check the box for `Enable Public Introspection`.
+    *   Click `Save Changes`.
+4.  **Set Permalinks**:
+    *   In the WordPress admin, go to `Settings` -> `Permalinks`.
+    *   Select `Post name` (or any other structure besides `Plain`).
+    *   Click `Save Changes`.
+
+### 3. Install Node.js Dependencies
+
+Install the necessary Node.js packages for the Next.js frontend:
+
+```bash
+npm install
+```
+
+### 4. Generate GraphQL Types
+
+Generate the TypeScript types for your GraphQL queries. This step requires the WordPress GraphQL endpoint to be accessible and configured (from step 2).
+
+```bash
+npm run codegen
+```
+
+### 5. Start the Next.js Development Server
+
+Finally, start the Next.js development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Open [http://localhost:3001](http://localhost:3001) (or `http://localhost:3000`) in your browser to see the Next.js application.
