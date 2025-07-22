@@ -2,6 +2,28 @@
 
 This is a monorepo containing a Next.js frontend application and a Dockerized WordPress backend, designed to demonstrate how to build a decoupled WordPress site using GraphQL.
 
+## docker
+
+Recommended Workflow
+
+  Here's how you should think about using these
+  commands:
+
+   * For daily development: When you're done working for
+     the day or just want to shut things down temporarily
+     to free up system resources, use:
+   1     docker compose stop
+      This is the command you should use most often.
+
+   * When you need a fresh start: You should only use
+     docker compose down when:
+       * You have changed your docker-compose.yml file
+         (e.g., added a new port mapping).
+       * You have changed a Dockerfile and need to rebuild
+         an image (e.g., docker compose up --build).
+       * Something is acting strangely and you want to
+         reset the containers to a pristine state.
+
 ## Info
 
 *   **Next.js Frontend**: Accessible at `http://localhost:3001` (or `http://localhost:3000` if port 3001 is not available).
