@@ -1,4 +1,4 @@
-# WP Next.js Monorepo
+# WP Next.js Monorepo Demo: <https://wp-nextjs-monorepo.vercel.app/>
 
 This is a monorepo containing a Next.js frontend application and a Dockerized WordPress backend, designed to demonstrate how to build a decoupled WordPress site using GraphQL.
 

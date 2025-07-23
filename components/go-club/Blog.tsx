@@ -3,7 +3,9 @@
 import { useState } from 'react';
 import { SGFViewer } from './SGFViewer';
 import { SGFUploader } from './SGFUploader';
-import { Card, CardHeader, CardTitle } from '@/components/ui/card';
+// FIX: Added CardContent and CardDescription back to the import
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button'; // FIX: Added Button import
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SGFParser } from '@/lib/sgf-parser';
 import { sampleSGFs, sampleGameDescriptions } from '@/data/sample-sgfs';
@@ -47,10 +49,8 @@ export function Blog() {
     try {
       const parsed = SGFParser.parse(sampleSGFs[key]);
       handleSGFSelect(parsed, sampleGameDescriptions[key].title);
-    // FIX: Specify the type of the error object 'e' as 'unknown'
     } catch (e: unknown) {
       console.error("Error loading sample game:", e);
-      // Check if 'e' is an object with a 'message' property
       const message = (e instanceof Error) ? e.message : "An error occurred while loading the sample game.";
       setError(message);
     }
@@ -78,14 +78,33 @@ export function Blog() {
             </TabsList>
             <TabsContent value="samples">
               <div className="grid md:grid-cols-3 gap-6 mt-6">
+                {/* FIX: Restored the card content for a complete look */}
                 <Card className="cursor-pointer hover:shadow-lg" onClick={() => loadSampleGame('opening')}>
-                  <CardHeader><CardTitle>Opening Principles</CardTitle></CardHeader>
+                  <CardHeader>
+                    <CardTitle>Opening Principles</CardTitle>
+                    <CardDescription>Learn the fundamental priority order.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button variant="outline" className="w-full">View Game</Button>
+                  </CardContent>
                 </Card>
                 <Card className="cursor-pointer hover:shadow-lg" onClick={() => loadSampleGame('joseki')}>
-                  <CardHeader><CardTitle>Basic Joseki</CardTitle></CardHeader>
+                  <CardHeader>
+                    <CardTitle>Basic Joseki</CardTitle>
+                    <CardDescription>Essential corner patterns to know.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button variant="outline" className="w-full">View Game</Button>
+                  </CardContent>
                 </Card>
                 <Card className="cursor-pointer hover:shadow-lg" onClick={() => loadSampleGame('lifeAndDeath')}>
-                  <CardHeader><CardTitle>Life & Death</CardTitle></CardHeader>
+                  <CardHeader>
+                    <CardTitle>Life & Death</CardTitle>
+                    <CardDescription>Understanding eye shapes and survival.</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button variant="outline" className="w-full">View Game</Button>
+                  </CardContent>
                 </Card>
               </div>
             </TabsContent>
