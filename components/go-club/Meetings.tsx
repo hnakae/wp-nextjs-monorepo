@@ -25,14 +25,13 @@ export function Meetings() {
               <div>
                 <h4 className="font-medium">When</h4>
                 <p className="text-sm text-muted-foreground">
-                  Every Thursday, 6:30 PM - 9:00 PM
+                  Every Wednesday, 5:30 PM - 9:00 PM
                 </p>
               </div>
               <div>
                 <h4 className="font-medium">Where</h4>
                 <p className="text-sm text-muted-foreground">
-                  University of Oregon Student Union<br />
-                  Room 330 (Board Game Room)
+                  The Wheel Apizza Pub
                 </p>
               </div>
               <div>
