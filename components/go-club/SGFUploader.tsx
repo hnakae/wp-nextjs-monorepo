@@ -3,38 +3,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Upload, FileText, X } from 'lucide-react';
 import { SGFParser } from '@/lib/sgf-parser';
-
-// Define a precise type for the game info
-interface GameInfo {
-  playerBlack?: string;
-  playerWhite?: string;
-  blackRank?: string;
-  whiteRank?: string;
-  komi?: string;
-  handicap?: string;
-  result?: string;
-  date?: string;
-  event?: string;
-}
-
-// Define a precise type for the parsed SGF data
-interface ParsedSGF {
-  size: number;
-  moves: Array<{
-    x: number;
-    y: number;
-    color: 'black' | 'white';
-    moveNumber: number;
-    comment?: string;
-  }>;
-  gameInfo: GameInfo;
-}
+import { ParsedSGF, GameInfo } from '@/lib/sgf-types';
 
 // Define the structure for a file uploaded by the user
 interface SGFFile {
   name: string;
   content: string;
-  gameInfo: ParsedSGF['gameInfo'];
+  gameInfo: GameInfo;
 }
 
 // FIX 1: Update the props interface to include the fileName in the callback

@@ -30,6 +30,7 @@ export function Blog() {
         boardSize: parsedData.size,
         gameInfo: parsedData.gameInfo,
         initialCommentary: 'Game loaded from SGF file.',
+        totalMoves: parsedData.totalMoves,
       };
       setSelectedSGF(gameData);
       setSelectedFileName(fileName);
@@ -100,6 +101,7 @@ export function Blog() {
                   moves={selectedSGF.moves}
                   boardSize={selectedSGF.boardSize}
                   initialCommentary={selectedSGF.initialCommentary}
+                  totalMoves={selectedSGF.totalMoves}
                 />
               ) : (
                 <div className="text-center py-12">

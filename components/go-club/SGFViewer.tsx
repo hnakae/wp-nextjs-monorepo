@@ -13,6 +13,7 @@ interface SGFViewerProps {
   moves: ViewerMove[];
   boardSize: number;
   initialCommentary: string;
+  totalMoves: number;
 }
 
 export function SGFViewer({
@@ -20,7 +21,8 @@ export function SGFViewer({
   description,
   moves,
   boardSize = 19,
-  initialCommentary = "Position before any moves are played."
+  initialCommentary = "Position before any moves are played.",
+  totalMoves
 }: SGFViewerProps) {
   const [currentMoveNumber, setCurrentMoveNumber] = useState(0);
 
@@ -38,8 +40,8 @@ export function SGFViewer({
 
   const goToFirstMove = () => setCurrentMoveNumber(0);
   const goToPreviousMove = () => setCurrentMoveNumber(Math.max(0, currentMoveNumber - 1));
-  const goToNextMove = () => setCurrentMoveNumber(Math.min(moves.length, currentMoveNumber + 1));
-  const goToLastMove = () => setCurrentMoveNumber(moves.length);
+  const goToNextMove = () => setCurrentMoveNumber(Math.min(totalMoves, currentMoveNumber + 1));
+  const goToLastMove = () => setCurrentMoveNumber(totalMoves);
 
   return (
     <div className="grid lg:grid-cols-2 gap-8 items-start">
@@ -69,13 +71,13 @@ export function SGFViewer({
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <span className="px-4 py-2 bg-muted rounded text-sm">
-            Move {currentMoveNumber} of {moves.length}
+            Move {currentMoveNumber} of {totalMoves}
           </span>
           <Button
             variant="outline"
             size="icon"
             onClick={goToNextMove}
-            disabled={currentMoveNumber === moves.length}
+            disabled={currentMoveNumber === totalMoves}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -83,7 +85,7 @@ export function SGFViewer({
             variant="outline"
             size="icon"
             onClick={goToLastMove}
-            disabled={currentMoveNumber === moves.length}
+            disabled={currentMoveNumber === totalMoves}
           >
             <SkipForward className="h-4 w-4" />
           </Button>

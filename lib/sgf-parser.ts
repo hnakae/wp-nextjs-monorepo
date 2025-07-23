@@ -1,17 +1,7 @@
+import { ParsedSGF } from '@/lib/sgf-types';
+
 interface SGFNode {
   [key: string]: string[];
-}
-
-interface ParsedSGF {
-  size: number;
-  moves: Array<{
-    x: number;
-    y: number;
-    color: 'black' | 'white';
-    moveNumber: number;
-    comment?: string;
-  }>;
-  gameInfo: { [key: string]: string | undefined };
 }
 
 export class SGFParser {
@@ -27,10 +17,11 @@ export class SGFParser {
   private static walkSgfTree(sgf: string, index: number): [SGFNode[], number] {
     const nodes: SGFNode[] = [];
     let i = index;
+    let branchProcessed = false; // Flag to ensure only the first branch is processed
 
     while (i < sgf.length) {
       const char = sgf[i];
-      
+
       if (char === ';') {
         i++; // Consume ';'
         const node: SGFNode = {};
@@ -39,7 +30,7 @@ export class SGFParser {
             i++;
             continue;
           }
-          
+
           let prop = '';
           while (i < sgf.length && sgf[i]?.match(/[A-Z]/)) {
             prop += sgf[i];
@@ -69,9 +60,20 @@ export class SGFParser {
 
       } else if (char === '(') {
         i++; // Consume '('
-        const [subNodes, length] = this.walkSgfTree(sgf, i);
-        nodes.push(...subNodes); // Add sub-nodes here
-        i = length;
+        if (!branchProcessed) { // Only process the first branch
+          const [subNodes, length] = this.walkSgfTree(sgf, i);
+          nodes.push(...subNodes);
+          i = length;
+          branchProcessed = true; // Mark that a branch has been processed
+        } else {
+          // Skip this branch by finding its closing ')'
+          let openParens = 1;
+          while (i < sgf.length && openParens > 0) {
+            if (sgf[i] === '(') openParens++;
+            if (sgf[i] === ')') openParens--;
+            i++;
+          }
+        }
       } else if (char === ')') {
         i++; // Consume ')'
         return [nodes, i];
@@ -118,6 +120,6 @@ export class SGFParser {
       }
     }
     
-    return { size, moves, gameInfo };
+    return { size, moves, gameInfo, totalMoves: moves.length };
   }
 }

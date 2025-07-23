@@ -9,6 +9,8 @@ export interface GameInfo {
   result?: string;
   date?: string;
   event?: string;
+  MO?: string;
+  [key: string]: string | undefined;
 }
 
 // The raw data structure returned by the SGF Parser
@@ -22,6 +24,7 @@ export interface ParsedSGF {
     comment?: string;
   }>;
   gameInfo: GameInfo;
+  totalMoves: number; // Add this line
 }
 
 // The specific structure for a move that the SGFViewer component expects
@@ -39,4 +42,5 @@ export interface SGFData {
   boardSize: number;
   gameInfo: GameInfo;
   moves: ViewerMove[]; // This uses the correct, nested move structure
+  totalMoves: number;
 }
