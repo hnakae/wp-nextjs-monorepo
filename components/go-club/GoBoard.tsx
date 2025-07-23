@@ -3,23 +3,28 @@
 import React from 'react';
 
 // This interface defines the shape of a single stone.
-interface Stone {
+export interface Stone {
   x: number;
   y: number;
   color: 'black' | 'white';
+  moveNumber?: number; // Add optional moveNumber
 }
 
-// FIX: The GoBoardProps no longer needs 'currentMove'.
+// Define the BoardState type
+export type BoardState = ({ color: 'black' | 'white'; moveNumber: number } | null)[][];
+
 interface GoBoardProps {
   size?: number;
   stones?: Stone[];
   showCoordinates?: boolean;
+  lastMove?: { x: number; y: number; color: 'black' | 'white'; moveNumber?: number };
 }
 
 export function GoBoard({
   size = 19,
   stones = [], // Default to an empty array
-  showCoordinates = true
+  showCoordinates = true,
+  lastMove
 }: GoBoardProps) {
   const cellSize = 20;
   const margin = 30;
@@ -46,7 +51,7 @@ export function GoBoard({
       <svg
         width={svgSize}
         height={svgSize}
-        className="border border-border rounded-lg bg-amber-50"
+        className="border border-border rounded-lg bg-amber-200"
         viewBox={`0 0 ${svgSize} ${svgSize}`}
       >
         {/* Grid lines */}
@@ -73,20 +78,28 @@ export function GoBoard({
               stroke={stone.color === 'black' ? '#000' : '#ccc'}
               strokeWidth="1"
             />
-            {/* Display move number on the most recently played stone */}
-            {index === visibleStones.length - 1 && (
-              <text
-                x={margin + stone.x * cellSize}
-                y={margin + stone.y * cellSize}
-                textAnchor="middle"
-                dominantBaseline="middle"
-                fontSize="10"
-                fill={stone.color === 'black' ? 'white' : 'black'}
-                fontWeight="bold"
-              >
-                {index + 1}
-              </text>
+            {lastMove && lastMove.x === stone.x && lastMove.y === stone.y && (
+              <circle
+                cx={margin + stone.x * cellSize}
+                cy={margin + stone.y * cellSize}
+                r="8" // Radius for the inner ring, so outer edge aligns with stone
+                fill="none"
+                stroke={lastMove.color === 'black' ? 'white' : 'black'} // Dynamic color based on stone color
+                strokeWidth="1.5" // Adjust stroke width as needed
+              />
             )}
+            {/* Display move number on each stone */}
+            <text
+              x={margin + stone.x * cellSize}
+              y={margin + stone.y * cellSize}
+              textAnchor="middle"
+              dominantBaseline="middle"
+              fontSize="10"
+              fill={stone.color === 'black' ? 'white' : 'black'}
+              fontWeight="bold"
+            >
+              {stone.moveNumber || index + 1}
+            </text>
           </g>
         ))}
 
