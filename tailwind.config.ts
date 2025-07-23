@@ -1,12 +1,11 @@
-// tailwind.config.ts
 import type { Config } from "tailwindcss"
-import tailwindcssAnimate from "tailwindcss-animate" // Import the plugin
+import tailwindcssAnimate from "tailwindcss-animate" // Use the correct import
 
 const config = {
-  darkMode: "class", // Changed from ["class"] to "class"
+  darkMode: "class", // Correctly set as a string
   content: [
     './pages/**/*.{ts,tsx}',
-    './components/**/*.{ts,tsx}',
+    './components/**/*.{ts,tsx}', // This will scan all components, including /ui and /go-club
     './app/**/*.{ts,tsx}',
     './src/**/*.{ts,tsx}',
   ],
@@ -19,9 +18,9 @@ const config = {
         "2xl": "1400px",
       },
     },
-    extend: {},
+    extend: {}, // Your custom theme extensions from globals.css are handled automatically
   },
-  plugins: [tailwindcssAnimate], // Use the imported variable
+  plugins: [tailwindcssAnimate], // Use the correct plugin variable
 } satisfies Config
 
 export default config
