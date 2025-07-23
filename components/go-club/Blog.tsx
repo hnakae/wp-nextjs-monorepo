@@ -8,79 +8,67 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SGFParser } from '@/lib/sgf-parser';
 import { sampleSGFs, sampleGameDescriptions } from '@/data/sample-sgfs';
-
-// Define a precise type for the game's metadata
-interface GameInfo {
-  playerBlack?: string;
-  blackRank?: string;
-  playerWhite?: string;
-  whiteRank?: string;
-  date?: string;
-  result?: string;
-  komi?: string;
-  event?: string;
-}
-
-// Define the main type for the SGF data structure
-interface SGFData {
-  title: string;
-  description: string;
-  moves: {
-    stone: { x: number; y: number; color: 'black' | 'white' };
-    title: string;
-    commentary: string;
-  }[];
-  boardSize: number;
-  gameInfo: GameInfo; // Replaced 'any' with the precise GameInfo type
-  initialCommentary: string;
-}
+import { ParsedSGF, SGFData, ViewerMove } from '@/lib/sgf-types';
 
 export function Blog() {
   const [selectedSGF, setSelectedSGF] = useState<SGFData | null>(null);
-  const [selectedFile, setSelectedFile] = useState<string>('');
+  const [selectedFileName, setSelectedFileName] = useState<string>('');
   const [activeTab, setActiveTab] = useState('samples');
 
-  // Parse sample SGFs
-  const parseSampleSGF = (sgfContent: string, key: keyof typeof sampleGameDescriptions): SGFData | null => {
-    try {
-      const parsed = SGFParser.parse(sgfContent);
-      const description = sampleGameDescriptions[key];
-      return {
-        title: description.title,
-        description: description.description,
-        moves: parsed.moves.map(move => ({
-          stone: { x: move.x, y: move.y, color: move.color },
-          title: `${move.color === 'black' ? 'Black' : 'White'} ${move.moveNumber}`,
-          commentary: move.comment || `${move.color === 'black' ? 'Black' : 'White'} plays at ${String.fromCharCode(97 + move.x)}${20 - move.y}.`,
-        })),
-        boardSize: parsed.size,
-        gameInfo: parsed.gameInfo,
-        initialCommentary: description.initialCommentary,
+  const handleSGFSelect = (parsedData: ParsedSGF | null, fileName: string) => {
+    if (parsedData) {
+      const viewerMoves: ViewerMove[] = parsedData.moves.map(move => ({
+        stone: { x: move.x, y: move.y, color: move.color },
+        title: `${move.color === 'black' ? 'Black' : 'White'} ${move.moveNumber}`,
+        commentary: move.comment || `Move ${move.moveNumber}`,
+      }));
+
+      const gameData: SGFData = {
+        title: fileName,
+        description: `Game record for ${fileName}`,
+        moves: viewerMoves,
+        boardSize: parsedData.size, // Map size to boardSize
+        gameInfo: parsedData.gameInfo,
+        initialCommentary: 'Game loaded from SGF file.',
       };
-    } catch (error) {
-      console.error('Error parsing sample SGF:', error);
-      return null;
+      setSelectedSGF(gameData);
+      setSelectedFileName(fileName);
+      setActiveTab('viewer');
+    } else {
+      setSelectedSGF(null);
+      setSelectedFileName('');
     }
   };
 
   const loadSampleGame = (key: keyof typeof sampleSGFs) => {
-    const gameData = parseSampleSGF(sampleSGFs[key], key);
-    if (gameData) {
+    try {
+      const parsed = SGFParser.parse(sampleSGFs[key]);
+      const description = sampleGameDescriptions[key];
+      
+      const viewerMoves: ViewerMove[] = parsed.moves.map(move => ({
+        stone: { x: move.x, y: move.y, color: move.color },
+        title: `${move.color === 'black' ? 'Black' : 'White'} ${move.moveNumber}`,
+        commentary: move.comment || `Move ${move.moveNumber}`,
+      }));
+
+      // FIX: The 'gameData' object now correctly maps 'parsed.size'
+      // to 'boardSize' and includes all required properties.
+      const gameData: SGFData = {
+        title: description.title,
+        description: description.description,
+        moves: viewerMoves,
+        boardSize: parsed.size, // This line fixes the error
+        gameInfo: parsed.gameInfo,
+        initialCommentary: description.initialCommentary,
+      };
+
       setSelectedSGF(gameData);
-      setSelectedFile('');
+      setSelectedFileName(description.title);
       setActiveTab('viewer');
+    } catch(error) {
+      console.error("Error parsing sample SGF:", error)
     }
   };
-
-  const handleSGFSelect = (sgfData: SGFData | null) => {
-  setSelectedSGF(sgfData);
-  // Also clear the file name if sgfData is null
-  setSelectedFile(sgfData ? sgfData.title : '');
-  if (sgfData) {
-    setActiveTab('viewer');
-  }
-};
-
 
   return (
     <section id="blog" className="py-20">
@@ -145,138 +133,33 @@ export function Blog() {
                   </CardContent>
                 </Card>
               </div>
-
-              <div className="text-center">
-                <p className="text-muted-foreground mb-4">
-                  Want to view your own games? Upload SGF files in the next tab.
-                </p>
-                <Button onClick={() => setActiveTab('upload')}>
-                  Upload Your Games
-                </Button>
-              </div>
             </TabsContent>
 
             <TabsContent value="upload" className="space-y-8">
               <SGFUploader
                 onSGFSelect={handleSGFSelect}
-                selectedFile={selectedFile}
+                selectedFile={selectedFileName}
               />
             </TabsContent>
 
             <TabsContent value="viewer" className="space-y-8">
               {selectedSGF ? (
-                <div className="space-y-8">
-                  <SGFViewer
-                    title={selectedSGF.title}
-                    description={selectedSGF.description}
-                    moves={selectedSGF.moves}
-                    boardSize={selectedSGF.boardSize}
-                    initialCommentary={selectedSGF.initialCommentary}
-                  />
-
-                  {selectedSGF.gameInfo && (
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Game Information</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <div className="grid md:grid-cols-2 gap-4 text-sm">
-                          {selectedSGF.gameInfo.playerBlack && (
-                            <div>
-                              <span className="font-medium">Black Player: </span>
-                              {selectedSGF.gameInfo.playerBlack}
-                              {selectedSGF.gameInfo.blackRank && ` (${selectedSGF.gameInfo.blackRank})`}
-                            </div>
-                          )}
-                          {selectedSGF.gameInfo.playerWhite && (
-                            <div>
-                              <span className="font-medium">White Player: </span>
-                              {selectedSGF.gameInfo.playerWhite}
-                              {selectedSGF.gameInfo.whiteRank && ` (${selectedSGF.gameInfo.whiteRank})`}
-                            </div>
-                          )}
-                          {selectedSGF.gameInfo.date && (
-                            <div>
-                              <span className="font-medium">Date: </span>
-                              {selectedSGF.gameInfo.date}
-                            </div>
-                          )}
-                          {selectedSGF.gameInfo.result && (
-                            <div>
-                              <span className="font-medium">Result: </span>
-                              {selectedSGF.gameInfo.result}
-                            </div>
-                          )}
-                          {selectedSGF.gameInfo.komi && (
-                            <div>
-                              <span className="font-medium">Komi: </span>
-                              {selectedSGF.gameInfo.komi}
-                            </div>
-                          )}
-                          {selectedSGF.gameInfo.event && (
-                            <div>
-                              <span className="font-medium">Event: </span>
-                              {selectedSGF.gameInfo.event}
-                            </div>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )}
-                </div>
+                <SGFViewer
+                  title={selectedSGF.title}
+                  description={selectedSGF.description}
+                  moves={selectedSGF.moves}
+                  boardSize={selectedSGF.boardSize}
+                  initialCommentary={selectedSGF.initialCommentary}
+                />
               ) : (
                 <div className="text-center py-12">
                   <p className="text-muted-foreground mb-4">
                     No game selected. Choose a sample game or upload your own SGF file to begin.
                   </p>
-                  <div className="space-x-4">
-                    <Button onClick={() => setActiveTab('samples')}>
-                      View Sample Games
-                    </Button>
-                    <Button variant="outline" onClick={() => setActiveTab('upload')}>
-                      Upload SGF Files
-                    </Button>
-                  </div>
                 </div>
               )}
             </TabsContent>
           </Tabs>
-
-          {/* Additional learning resources */}
-          <div className="border-t pt-16">
-            <h3 className="text-2xl mb-8 text-center">More Learning Resources</h3>
-            <div className="grid md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Online Go Servers</CardTitle>
-                  <CardDescription>Practice against players worldwide</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <p className="text-sm">
-                    <strong>KGS (Kiseido Go Server):</strong> One of the most popular servers with excellent teaching features and strong players.
-                  </p>
-                  <p className="text-sm">
-                    <strong>OGS (Online-Go.com):</strong> Modern interface with correspondence and live games, great for beginners.
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>SGF File Resources</CardTitle>
-                  <CardDescription>Where to find go game records</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-2">
-                  <p className="text-sm">
-                    <strong>GoGoD Database:</strong> Comprehensive collection of professional games in SGF format.
-                  </p>
-                  <p className="text-sm">
-                    <strong>Waltheri&apos;s Pattern Search:</strong> Search professional games by patterns and positions.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
         </div>
       </div>
     </section>

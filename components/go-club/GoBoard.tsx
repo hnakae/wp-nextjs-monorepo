@@ -1,5 +1,3 @@
-// import { useState, useEffect } from 'react';
-
 interface Stone {
   x: number;
   y: number;

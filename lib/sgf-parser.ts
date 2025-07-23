@@ -2,10 +2,6 @@ interface SGFNode {
   [key: string]: string[];
 }
 
-interface SGFGame {
-  nodes: SGFNode[];
-}
-
 interface ParsedSGF {
   size: number;
   moves: Array<{
@@ -25,130 +21,93 @@ interface ParsedSGF {
     result?: string;
     date?: string;
     event?: string;
-    round?: string;
-    place?: string;
-    timeLimit?: string;
-    gameComment?: string;
   };
-  comments: { [moveNumber: number]: string };
 }
 
 export class SGFParser {
-  private static coordinateToPosition(coord: string, size: number): { x: number; y: number } {
-    if (coord.length !== 2) {
-      throw new Error(`Invalid coordinate: ${coord}`);
+  private static coordinateToPosition(coord: string): { x: number; y: number } {
+    // SGF uses 'tt' for pass moves, which we can ignore for board positions.
+    if (!coord || coord.length !== 2 || coord === 'tt') {
+      return { x: -1, y: -1 };
     }
-    
-    const x = coord.charCodeAt(0) - 97; // 'a' = 97
+    // 'a' corresponds to 0, 'b' to 1, and so on.
+    const x = coord.charCodeAt(0) - 97;
     const y = coord.charCodeAt(1) - 97;
-    
     return { x, y };
   }
 
-  private static parsePropertyValue(value: string): string {
-    // Remove brackets and handle escaped characters
-    return value.replace(/^\[|\]$/g, '').replace(/\\(.)/g, '$1');
-  }
+  /**
+   * Recursively walks the SGF game tree.
+   * It parses nodes on the current level and skips over variations.
+   */
+  private static walkSgfTree(sgf: string, startIndex: number): [SGFNode[], number] {
+    const nodes: SGFNode[] = [];
+    let i = startIndex;
 
-  private static tokenize(sgf: string): string[] {
-    const tokens: string[] = [];
-    let i = 0;
-    
     while (i < sgf.length) {
       const char = sgf[i];
-      
-      if (char === '(' || char === ')' || char === ';') {
-        tokens.push(char);
-        i++;
-      } else if (char === '[') {
-        // Property value - find matching closing bracket
-        let value = '[';
-        i++;
-        let depth = 1;
-        
-        while (i < sgf.length && depth > 0) {
-          if (sgf[i] === '[' && sgf[i - 1] !== '\\') {
-            depth++;
-          } else if (sgf[i] === ']' && sgf[i - 1] !== '\\') {
-            depth--;
-          }
-          value += sgf[i];
-          i++;
-        }
-        tokens.push(value);
-      } else if (char.match(/[A-Z]/)) {
-        // Property identifier
-        let prop = '';
-        while (i < sgf.length && sgf[i].match(/[A-Z]/)) {
-          prop += sgf[i];
-          i++;
-        }
-        tokens.push(prop);
-      } else {
-        // Skip whitespace and other characters
-        i++;
-      }
-    }
-    
-    return tokens;
-  }
 
-  private static parseNodes(tokens: string[]): SGFNode[] {
-    const nodes: SGFNode[] = [];
-    let i = 0;
-    
-    while (i < tokens.length) {
-      if (tokens[i] === ';') {
-        // Start of a new node
+      if (char === ';') {
+        i++; // Move past ';'
         const node: SGFNode = {};
-        i++; // Skip ';'
-        
-        while (i < tokens.length && tokens[i] !== ';' && tokens[i] !== ')') {
-          if (tokens[i].match(/^[A-Z]+$/)) {
-            const property = tokens[i];
+        while (i < sgf.length && sgf[i] !== ';' && sgf[i] !== '(' && sgf[i] !== ')') {
+          let prop = '';
+          while(i < sgf.length && sgf[i]?.match(/[A-Z]/)) {
+            prop += sgf[i];
             i++;
-            
-            const values: string[] = [];
-            while (i < tokens.length && tokens[i].startsWith('[')) {
-              values.push(this.parsePropertyValue(tokens[i]));
+          }
+
+          const values: string[] = [];
+          while (i < sgf.length && sgf[i] === '[') {
+            i++; // Move past '['
+            let value = '';
+            let depth = 1;
+            while (i < sgf.length && depth > 0) {
+              const valChar = sgf[i];
+              if (valChar === ']' && sgf[i-1] !== '\\') depth--;
+              else if (valChar === '[' && sgf[i-1] !=='\\') depth++;
+
+              if (depth > 0) value += valChar;
               i++;
             }
-            
-            if (values.length > 0) {
-              node[property] = values;
-            }
-          } else {
-            i++;
+            values.push(value);
+          }
+          if (prop) {
+            node[prop] = values;
           }
         }
-        
         nodes.push(node);
+      } else if (char === '(') {
+        // This is the start of a variation. We recursively call the function
+        // to find its end, but we discard the nodes to ignore the variation.
+        const [, length] = this.walkSgfTree(sgf, i + 1);
+        i += length + 1; // Skip the entire variation block
+      } else if (char === ')') {
+        // This is the end of the current branch.
+        return [nodes, i];
       } else {
         i++;
       }
     }
-    
-    return nodes;
+    return [nodes, i];
   }
 
   static parse(sgfContent: string): ParsedSGF {
-    // Clean up the SGF content
     const cleanSGF = sgfContent.trim();
-    
-    // Tokenize
-    const tokens = this.tokenize(cleanSGF);
-    
-    // Parse nodes
-    const nodes = this.parseNodes(tokens);
-    
+    if (!cleanSGF.startsWith('(;')) {
+      throw new Error('Invalid SGF format');
+    }
+
+    // Start parsing after the initial '(;'
+    const [nodes] = this.walkSgfTree(cleanSGF, 2);
+
     if (nodes.length === 0) {
       throw new Error('No nodes found in SGF');
     }
-    
-    // Extract game info from the first node
+
     const rootNode = nodes[0];
-    const size = rootNode.SZ ? parseInt(rootNode.SZ[0]) : 19;
-    
+    const size = rootNode.SZ ? parseInt(rootNode.SZ[0], 10) : 19;
+
     const gameInfo = {
       playerBlack: rootNode.PB?.[0],
       playerWhite: rootNode.PW?.[0],
@@ -159,61 +118,34 @@ export class SGFParser {
       result: rootNode.RE?.[0],
       date: rootNode.DT?.[0],
       event: rootNode.EV?.[0],
-      round: rootNode.RO?.[0],
-      place: rootNode.PC?.[0],
-      timeLimit: rootNode.TM?.[0],
-      gameComment: rootNode.GC?.[0],
     };
-    
-    // Extract moves and comments
+
     const moves: ParsedSGF['moves'] = [];
-    const comments: { [moveNumber: number]: string } = {};
     let moveNumber = 0;
-    
-    for (let i = 1; i < nodes.length; i++) {
-      const node = nodes[i];
-      
-      // Check for black move
-      if (node.B) {
-        const coord = node.B[0];
-        if (coord && coord.length === 2) {
-          const pos = this.coordinateToPosition(coord, size);
+
+    // Iterate through the flat list of main-line nodes from our parsed tree
+    for (const node of nodes) {
+      const moveProp = node.B ? 'B' : node.W ? 'W' : null;
+      if (moveProp) {
+        const coord = node[moveProp]![0];
+        const pos = this.coordinateToPosition(coord);
+        // Only add actual moves to the list, not passes
+        if (pos.x !== -1) {
           moves.push({
             x: pos.x,
             y: pos.y,
-            color: 'black',
+            color: moveProp === 'B' ? 'black' : 'white',
             moveNumber: ++moveNumber,
             comment: node.C?.[0],
           });
         }
-      }
-      
-      // Check for white move
-      if (node.W) {
-        const coord = node.W[0];
-        if (coord && coord.length === 2) {
-          const pos = this.coordinateToPosition(coord, size);
-          moves.push({
-            x: pos.x,
-            y: pos.y,
-            color: 'white',
-            moveNumber: ++moveNumber,
-            comment: node.C?.[0],
-          });
-        }
-      }
-      
-      // Store comments
-      if (node.C) {
-        comments[moveNumber] = node.C[0];
       }
     }
-    
+
     return {
       size,
       moves,
       gameInfo,
-      comments,
     };
   }
 }
