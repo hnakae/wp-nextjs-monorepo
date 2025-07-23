@@ -33,7 +33,6 @@ export class SGFParser {
       
       if (char === ';') {
         i++; // Consume ';'
-        // FIX: Changed 'let' to 'const' as 'node' is not reassigned.
         const node: SGFNode = {};
         while (i < sgf.length && sgf[i] !== ';' && sgf[i] !== '(' && sgf[i] !== ')') {
           if (sgf[i].match(/\s/)) { // Skip whitespace
@@ -70,8 +69,9 @@ export class SGFParser {
 
       } else if (char === '(') {
         i++; // Consume '('
-        const [, length] = this.walkSgfTree(sgf, i);
-        i += length;
+        const [subNodes, length] = this.walkSgfTree(sgf, i);
+        nodes.push(...subNodes); // Add sub-nodes here
+        i = length;
       } else if (char === ')') {
         i++; // Consume ')'
         return [nodes, i];

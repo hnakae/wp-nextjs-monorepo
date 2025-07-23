@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { GoBoard } from './GoBoard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,6 +23,10 @@ export function SGFViewer({
   initialCommentary = "Position before any moves are played."
 }: SGFViewerProps) {
   const [currentMoveNumber, setCurrentMoveNumber] = useState(0);
+
+  useEffect(() => {
+    setCurrentMoveNumber(0);
+  }, [moves]);
 
   const stonesToDisplay = moves.slice(0, currentMoveNumber).map(move => move.stone);
   const currentMoveData = currentMoveNumber > 0 ? moves[currentMoveNumber - 1] : null;
