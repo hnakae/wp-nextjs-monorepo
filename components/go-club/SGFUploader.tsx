@@ -103,7 +103,11 @@ export function SGFUploader({ onSGFSelect, selectedFile }: SGFUploaderProps) {
   const selectSGF = (file: SGFFile) => {
     try {
       const parsed = SGFParser.parse(file.content);
-      // FIX 2: Pass both the parsed data and the file name
+      console.log('Parser Output:', {
+      fileName: file.name,
+      moveCount: parsed.moves.length,
+      gameInfo: parsed.gameInfo,
+    });
       onSGFSelect(parsed, file.name);
     } catch (error) {
       console.error(`Error selecting ${file.name}:`, error);
