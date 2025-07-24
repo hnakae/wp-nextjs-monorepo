@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 
+import  { SignInButton, SignOutButton, UserButton, SignedIn, SignedOut } from "@clerk/nextjs";
+
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -36,6 +38,19 @@ export function Navbar() {
                   {item.name}
                 </a>
               ))}
+              <SignedOut>
+              <div className="px-3 py-2 rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors">
+                <SignInButton mode="modal"/>
+              </div>
+              </SignedOut>
+              <SignedIn>
+              <div className="px-3 py-2 rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors">
+                <SignOutButton />
+              </div>
+              </SignedIn>
+              
+              <UserButton/>
+              
             </div>
           </div>
 
