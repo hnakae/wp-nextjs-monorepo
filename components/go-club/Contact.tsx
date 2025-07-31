@@ -1,5 +1,12 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export function Contact() {
   return (
@@ -11,7 +18,7 @@ export function Contact() {
             Have questions? Want to join? We&apos;d love to hear from you!
           </p>
         </div>
-        
+
         <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           <Card>
             <CardHeader>
@@ -22,26 +29,21 @@ export function Contact() {
               <div>
                 <h4 className="font-medium">Email</h4>
                 <p className="text-sm text-muted-foreground">
-                  eugenegoclub@gmail.com
+                  contact@eugenego.club
                 </p>
               </div>
               <div>
                 <h4 className="font-medium">Club President</h4>
+                <p className="text-sm text-muted-foreground">Daniel Takamori</p>
+                <p className="text-sm text-muted-foreground">971-533-7727</p>
                 <p className="text-sm text-muted-foreground">
-                  Contact us for more information about leadership and club activities
-                </p>
-              </div>
-              <div>
-                <h4 className="font-medium">Mailing Address</h4>
-                <p className="text-sm text-muted-foreground">
-                  Eugene Go Club<br />
-                  c/o University of Oregon<br />
-                  Eugene, OR 97403
+                  Contact us for more information about leadership and club
+                  activities
                 </p>
               </div>
             </CardContent>
           </Card>
-          
+
           <Card>
             <CardHeader>
               <CardTitle>Join Our Community</CardTitle>
@@ -54,19 +56,32 @@ export function Contact() {
                   Join our online communities for announcements and discussion
                 </p>
                 <div className="space-y-2">
-                  <Button variant="outline" size="sm" className="w-full justify-start">
-                    Facebook Group
-                  </Button>
-                  <Button variant="outline" size="sm" className="w-full justify-start">
-                    Discord Server
-                  </Button>
+                  <Link href="https://www.facebook.com/groups/EugeneGoClub">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-start mb-2"
+                    >
+                      Facebook Group
+                    </Button>
+                  </Link>
+                  <Link href="https://discord.com/channels/1164649557687275703/1164649557687275706">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-start"
+                    >
+                      Discord Server
+                    </Button>
+                  </Link>
                 </div>
               </div>
               <div>
                 <h4 className="font-medium">First Time Visiting?</h4>
                 <p className="text-sm text-muted-foreground">
-                  Just show up to any Thursday meeting! No need to register or bring anything. 
-                  We&apos;ll provide everything you need to get started.
+                  Just show up to any Wednesday meeting! No need to register or
+                  bring anything. We&apos;ll provide everything you need to get
+                  started.
                 </p>
               </div>
             </CardContent>
