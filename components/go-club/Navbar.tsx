@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import Link from "next/link";
 
@@ -11,9 +11,9 @@ export function Navbar() {
 
   const navItems = [
     { name: "Home", href: "#home" },
+    { name: "Blog", href: "/blog" },
     { name: "About", href: "#about" },
     { name: "Meetings", href: "#meetings" },
-    // { name: "Blog", href: "#blog" },
     { name: "Contact", href: "#contact" },
   ];
 
@@ -50,7 +50,10 @@ export function Navbar() {
                 </Button>
               </SheetTrigger>
               <SheetContent side="right">
-                <div className="flex flex-col space-y-4 mt-4">
+                <SheetHeader className="sr-only">
+                  <SheetTitle>Mobile Navigation</SheetTitle>
+                </SheetHeader>
+                <div className="flex flex-col space-y-4 p-4 pt-10">
                   {navItems.map((item) => (
                     <a
                       key={item.name}

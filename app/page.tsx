@@ -3,7 +3,6 @@
 import { Hero } from "@/components/go-club/Hero";
 import { About } from "@/components/go-club/About";
 import { Meetings } from "@/components/go-club/Meetings";
-import { Blog } from "@/components/go-club/Blog";
 import { Contact } from "@/components/go-club/Contact";
 
 export default function Home() {
@@ -12,7 +11,6 @@ export default function Home() {
       <Hero />
       <About />
       <Meetings />
-      {/* <Blog /> */}
       <Contact />
     </main>
   );
