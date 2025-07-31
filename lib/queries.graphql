@@ -31,12 +31,3 @@ query GetAllPostSlugs {
     }
   }
 }
-
-# Fetch a single page by slug
-query GetPageBySlug($slug: String!) {
-  pageBy(uri: $slug) {
-    id
-    title
-    content
-  }
-}
