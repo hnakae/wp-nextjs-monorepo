@@ -1,5 +1,6 @@
 import type { Config } from "tailwindcss"
 import tailwindcssAnimate from "tailwindcss-animate" // Use the correct import
+import typography from "@tailwindcss/typography"
 
 const config = {
   darkMode: "class", // Correctly set as a string
@@ -20,7 +21,7 @@ const config = {
     },
     extend: {}, // Your custom theme extensions from globals.css are handled automatically
   },
-  plugins: [tailwindcssAnimate], // Use the correct plugin variable
+  plugins: [tailwindcssAnimate, typography], // Use the correct plugin variable
 } satisfies Config
 
 export default config

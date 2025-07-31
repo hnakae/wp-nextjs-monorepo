@@ -9,6 +9,14 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  async rewrites() {
+    return [
+      {
+        source: "/admin/:path*",
+        destination: "http://localhost:8080/wp-admin/:path*",
+      },
+    ];
+  },
 };
 
 export default nextConfig;

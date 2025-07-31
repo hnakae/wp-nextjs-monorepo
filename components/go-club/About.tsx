@@ -1,15 +1,19 @@
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { getSdkWithFetch } from '@/lib/graphql-client';
 
-export function About() {
+export async function About() {
+  const sdk = getSdkWithFetch({ next: { revalidate: 60 } });
+  const { pageBy } = await sdk.GetPageBySlug({ slug: 'about-our-club' });
+
   return (
     <section id="about" className="py-20 bg-muted/50">
       <div className="container mx-auto px-4">
         <div className="text-center space-y-4 mb-16">
-          <h2 className="text-3xl md:text-4xl">About Our Club</h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            The Eugene Go Club has been fostering the ancient game of go (weiqi/baduk) 
-            in the Eugene area for over two decades.
-          </p>
+          <h2 className="text-3xl md:text-4xl">{pageBy?.title ?? "error"}</h2>
+          <div
+            className="text-lg text-muted-foreground max-w-2xl mx-auto"
+            dangerouslySetInnerHTML={{ __html: pageBy?.content ?? "error" }}
+          />
         </div>
         
         <div className="grid md:grid-cols-2 gap-8 mb-16">

@@ -9587,6 +9587,13 @@ export type GetAllPostSlugsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetAllPostSlugsQuery = { __typename?: 'RootQuery', posts?: { __typename?: 'RootQueryToPostConnection', nodes: Array<{ __typename?: 'Post', slug?: string | null }> } | null };
 
+export type GetPageBySlugQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+}>;
+
+
+export type GetPageBySlugQuery = { __typename?: 'RootQuery', pageBy?: { __typename?: 'Page', id: string, title?: string | null, content?: string | null } | null };
+
 
 export const GetLatestPostsDocument = gql`
     query GetLatestPosts($first: Int!) {
@@ -9620,6 +9627,15 @@ export const GetAllPostSlugsDocument = gql`
   }
 }
     `;
+export const GetPageBySlugDocument = gql`
+    query GetPageBySlug($slug: String!) {
+  pageBy(uri: $slug) {
+    id
+    title
+    content
+  }
+}
+    `;
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string, operationType?: string, variables?: any) => Promise<T>;
 
@@ -9636,6 +9652,9 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     GetAllPostSlugs(variables?: GetAllPostSlugsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetAllPostSlugsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetAllPostSlugsQuery>({ document: GetAllPostSlugsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'GetAllPostSlugs', 'query', variables);
+    },
+    GetPageBySlug(variables: GetPageBySlugQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetPageBySlugQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetPageBySlugQuery>({ document: GetPageBySlugDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'GetPageBySlug', 'query', variables);
     }
   };
 }

@@ -22,22 +22,21 @@ export function Contact() {
               <div>
                 <h4 className="font-medium">Email</h4>
                 <p className="text-sm text-muted-foreground">
-                  eugenegoclub@gmail.com
+                  contact@eugenego.club
                 </p>
               </div>
               <div>
                 <h4 className="font-medium">Club President</h4>
                 <p className="text-sm text-muted-foreground">
+                  Daniel Pono Takamori
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  971-533-7727
+                </p>
+                <p className="text-sm text-muted-foreground">
                   Contact us for more information about leadership and club activities
                 </p>
-              </div>
-              <div>
-                <h4 className="font-medium">Mailing Address</h4>
-                <p className="text-sm text-muted-foreground">
-                  Eugene Go Club<br />
-                  c/o University of Oregon<br />
-                  Eugene, OR 97403
-                </p>
+                
               </div>
             </CardContent>
           </Card>
@@ -53,13 +52,17 @@ export function Contact() {
                 <p className="text-sm text-muted-foreground mb-2">
                   Join our online communities for announcements and discussion
                 </p>
-                <div className="space-y-2">
-                  <Button variant="outline" size="sm" className="w-full justify-start">
-                    Facebook Group
-                  </Button>
-                  <Button variant="outline" size="sm" className="w-full justify-start">
-                    Discord Server
-                  </Button>
+                <div className="">
+                  <a href="https://www.facebook.com/groups/116957312312340/" target="_blank" rel="noopener noreferrer">
+                    <Button variant="outline" size="sm" className="w-full justify-start mb-2">
+                      Facebook Group
+                    </Button>
+                  </a>
+                  <a href="https://discord.com/channels/1164649557687275703/1164649557687275706" target="_blank" rel="noopener noreferrer">
+                    <Button variant="outline" size="sm" className="w-full justify-start">
+                      Discord Server
+                    </Button>
+                  </a>
                 </div>
               </div>
               <div>

@@ -8,3 +8,18 @@ export const graphqlClient = new GraphQLClient(endpoint, {
   headers: { 'Content-Type': 'application/json' },
 });
 export const sdk = getSdk(graphqlClient);
+
+// New function to allow for revalidation
+export const getSdkWithFetch = (cacheConfig: RequestInit | undefined) => {
+  return getSdk(
+    new GraphQLClient(endpoint, {
+      headers: { 'Content-Type': 'application/json' },
+      fetch: (url: RequestInfo, init?: RequestInit) => {
+        return fetch(url, {
+          ...init,
+          ...cacheConfig,
+        });
+      },
+    })
+  );
+};
