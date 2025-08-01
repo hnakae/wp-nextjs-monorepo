@@ -94,8 +94,9 @@ export default function Blog() {
           )
         );
 
-  // For now, let's just pick the first article as featured if available
-  const featuredArticle = posts.length > 0 ? posts[0] : null;
+  const featuredArticle = posts.find((article) =>
+    article.categories.nodes.some((cat) => cat.name === "Featured")
+  );
 
   return (
     <div className="min-h-screen py-8">
