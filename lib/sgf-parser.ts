@@ -14,6 +14,52 @@ export class SGFParser {
     return { x, y };
   }
 
+  private static parseNodeProperties(sgf: string, index: number): [SGFNode, number] {
+    const node: SGFNode = {};
+    let i = index;
+
+    while (i < sgf.length) {
+      // Skip all whitespace characters (including newlines)
+      while (i < sgf.length && /\s/.test(sgf[i])) {
+        i++;
+      }
+
+      // Check for end of node properties (semicolon, opening/closing parenthesis)
+      if (sgf[i] === ';' || sgf[i] === '(' || sgf[i] === ')') {
+        break;
+      }
+
+      let prop = '';
+      // Read property name (uppercase letters)
+      while (i < sgf.length && /[A-Z]/.test(sgf[i])) {
+        prop += sgf[i];
+        i++;
+      }
+
+      if (!prop) {
+        // If no property name found, it's an unexpected character, skip it
+        i++;
+        continue;
+      }
+
+      const values: string[] = [];
+      // Read property values (enclosed in brackets)
+      while (i < sgf.length && sgf[i] === '[') {
+        i++; // Consume '['
+        let value = '';
+        while (i < sgf.length && (sgf[i] !== ']' || sgf[i-1] === '\\')) {
+          value += sgf[i];
+          i++;
+        }
+        i++; // Consume ']'
+        values.push(value.replace(/\\(.)/g, '$1'));
+      }
+
+      node[prop] = values;
+    }
+    return [node, i];
+  }
+
   private static walkSgfTree(sgf: string, index: number): [SGFNode[], number] {
     const nodes: SGFNode[] = [];
     let i = index;
@@ -24,39 +70,9 @@ export class SGFParser {
 
       if (char === ';') {
         i++; // Consume ';'
-        const node: SGFNode = {};
-        while (i < sgf.length && sgf[i] !== ';' && sgf[i] !== '(' && sgf[i] !== ')') {
-          if (sgf[i].match(/\s/)) { // Skip whitespace
-            i++;
-            continue;
-          }
-
-          let prop = '';
-          while (i < sgf.length && sgf[i]?.match(/[A-Z]/)) {
-            prop += sgf[i];
-            i++;
-          }
-
-          const values: string[] = [];
-          while (i < sgf.length && sgf[i] === '[') {
-            i++; // Consume '['
-            let value = '';
-            while (i < sgf.length && (sgf[i] !== ']' || sgf[i-1] === '\\')) {
-              value += sgf[i];
-              i++;
-            }
-            i++; // Consume ']'
-            values.push(value.replace(/\\(.)/g, '$1'));
-          }
-          if (prop) {
-            node[prop] = values;
-          } else {
-            i++;
-          }
-        }
-        if (Object.keys(node).length > 0) {
-            nodes.push(node);
-        }
+        const [node, nextIndex] = this.parseNodeProperties(sgf, i);
+        nodes.push(node);
+        i = nextIndex;
 
       } else if (char === '(') {
         i++; // Consume '('
@@ -88,17 +104,24 @@ export class SGFParser {
     const cleanSGF = sgfContent.trim();
     if (!cleanSGF.startsWith('(;')) throw new Error('Invalid SGF: Does not start with "(;"');
 
-    const [allNodes] = this.walkSgfTree(cleanSGF, 1);
-    
-    if (allNodes.length === 0) throw new Error('No nodes found in SGF');
+    let i = 2; // Start after "(;"
+    const [rootNode, nextIndex] = this.parseNodeProperties(cleanSGF, i);
+    i = nextIndex;
+    console.log("SGFParser: Root Node:", rootNode);
 
-    const rootNode = allNodes.shift()!;
-    const size = rootNode.SZ ? parseInt(rootNode.SZ[0], 10) : 19;
+    const [allNodes] = this.walkSgfTree(cleanSGF, i);
+    console.log("SGFParser: All Nodes (after root):", allNodes);
+    
+    if (Object.keys(rootNode).length === 0 && allNodes.length === 0) throw new Error('No nodes found in SGF');
+
+    const size = 19;
+    console.log("SGFParser: Board Size:", size);
     
     const gameInfo: ParsedSGF['gameInfo'] = Object.entries(rootNode).reduce((acc, [key, value]) => {
         acc[key] = value[0];
         return acc;
     }, {} as ParsedSGF['gameInfo']);
+    console.log("SGFParser: Game Info:", gameInfo);
 
     const moves: ParsedSGF['moves'] = [];
     let moveNumber = 0;
@@ -116,6 +139,20 @@ export class SGFParser {
             moveNumber: ++moveNumber,
             comment: node.C?.[0],
           });
+        }
+      }
+    }
+    console.log("SGFParser: Parsed Moves:", moves);
+
+    // Sanity check: First move must be black, and colors must alternate
+    if (moves.length > 0) {
+      if (moves[0].color !== 'black') {
+        console.error("SGF Parsing Error: First move is not black.");
+      }
+      for (let k = 1; k < moves.length; k++) {
+        if (moves[k].color === moves[k - 1].color) {
+          console.error(`SGF Parsing Error: Consecutive moves of the same color at move ${moves[k].moveNumber}.`);
+          break; // Stop checking after the first error
         }
       }
     }

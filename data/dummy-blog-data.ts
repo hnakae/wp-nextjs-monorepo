@@ -35,7 +35,7 @@ export const dummyBlogPosts: BlogPost[] = [
     slug: "dummy-article-1",
     date: "2024-07-25T10:00:00",
     excerpt: "<p>This is a <strong>dummy excerpt</strong> for the first article. It covers the fundamental rules and concepts of the game of Go.</p>",
-    content: "<h2>Introduction to Go</h2><p>Go is an ancient board game for two players. It is played with black and white stones on a grid of intersecting lines.</p><h3>Objective</h3><p>The objective of Go is to surround a larger total area of the board with your stones than your opponent.</p>",
+    content: "<h2>Introduction to Go</h2><p>Go is an ancient board game for two players. It is played with black and white stones on a grid of intersecting lines.</p><h3>Objective</h3><p>The objective of Go is to surround a larger total area of the board with your stones than your opponent.</p><!-- SGF_DATA:(;FF[4]CA[UTF-8]AP[Example]ST[2]RU[Japanese]SZ[19]KM[6.5]PB[Student]PW[Teacher];B[dd];W[pp];B[dp];W[pd];B[qf];W[qh];B[of];W[nd];B[pi];W[qi];B[pj];W[qj];B[pk];W[qk];B[pl];W[ql];B[pm];W[qm];B[pn];W[qn];B[po];W[qo];B[qp];W[rp];B[qq];W[rq];B[qr];W[rr];B[pr];W[rs]C[This sequence shows how Black can live in the corner despite White's strong outside position. The key is understanding the vital points for making two eyes.])-->",
     author: { node: { name: "Dummy Author" } },
     categories: { nodes: [{ name: "Beginner" }, { name: "Featured" }] },
     tags: { nodes: [{ name: "Rules" }, { name: "Strategy" }] },

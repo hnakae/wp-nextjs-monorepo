@@ -9,6 +9,25 @@ import { notFound } from "next/navigation";
 import { Calendar, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { dummyBlogPosts } from "@/data/dummy-blog-data";
+import { SGFViewer } from "@/components/go-club/SGFViewer";
+import { SGFParser } from "@/lib/sgf-parser";
+import { SGFData } from "@/lib/sgf-types";
+import { Buffer } from "buffer";
+
+const SGF_DATA_PREFIX = "<!-- SGF_DATA:";
+const SGF_DATA_SUFFIX = "-->";
+
+function extractAndDecodeSGF(content: string): { sgfString: string | null; cleanContent: string } {
+  const startIndex = content.indexOf(SGF_DATA_PREFIX);
+  const endIndex = content.indexOf(SGF_DATA_SUFFIX, startIndex);
+
+  if (startIndex !== -1 && endIndex !== -1) {
+    const sgfString = content.substring(startIndex + SGF_DATA_PREFIX.length, endIndex).trim();
+    const cleanContent = content.substring(0, startIndex) + content.substring(endIndex + SGF_DATA_SUFFIX.length);
+    return { sgfString, cleanContent };
+  }
+  return { sgfString: null, cleanContent: content };
+}
 
 interface BlogPostProps {
   params: {
@@ -17,22 +36,31 @@ interface BlogPostProps {
 }
 
 export async function generateStaticParams() {
+  console.log("generateStaticParams: Starting...");
   if (process.env.NEXT_PUBLIC_USE_DUMMY_DATA === "true") {
+    console.log("generateStaticParams: Using dummy data.");
     return dummyBlogPosts.map((post) => ({
       slug: post.slug,
     }));
   } else {
-    const response = await fetchGraphQL(GetAllBlogPostsDocument);
-    const posts = response.posts.nodes;
-
-    return posts.map((post: { slug: string }) => ({
-      slug: post.slug,
-    }));
+    try {
+      console.log("generateStaticParams: Fetching from GraphQL.");
+      const response = await fetchGraphQL(GetAllBlogPostsDocument);
+      const posts = response.posts.nodes;
+      console.log(`generateStaticParams: Fetched ${posts.length} posts.`);
+      return posts.map((post: { slug: string }) => ({
+        slug: post.slug,
+      }));
+    } catch (error) {
+      console.error("generateStaticParams: Error fetching posts:", error);
+      // Fallback to empty array to prevent build failure if API is down
+      return [];
+    }
   }
 }
 
 export default async function BlogPost({ params }: BlogPostProps) {
-  const { slug } = params;
+  const { slug } = await params;
 
   let post;
   if (process.env.NEXT_PUBLIC_USE_DUMMY_DATA === "true") {
@@ -44,6 +72,36 @@ export default async function BlogPost({ params }: BlogPostProps) {
 
   if (!post) {
     notFound();
+  }
+
+  const { sgfString, cleanContent } = extractAndDecodeSGF(post.content || "");
+  let sgfData: SGFData | null = null;
+
+  console.log("Extracted SGF String:", sgfString ? "Found" : "Not Found");
+  console.log("Clean Content Length:", cleanContent.length);
+
+  if (sgfString) {
+    try {
+      const parsedSGF = SGFParser.parse(sgfString);
+      console.log("Parsed SGF:", parsedSGF);
+      sgfData = {
+        title: post.title, // Use post title for SGF viewer title
+        description: post.excerpt || "", // Use post excerpt for SGF viewer description
+        initialCommentary: parsedSGF.gameInfo.C || "",
+        boardSize: parsedSGF.size,
+        gameInfo: parsedSGF.gameInfo,
+        moves: parsedSGF.moves.map((move) => ({
+          stone: { x: move.x, y: move.y, color: move.color },
+          title: `Move ${move.moveNumber}`,
+          commentary: move.comment || "",
+        })),
+        totalMoves: parsedSGF.totalMoves,
+      };
+      console.log("Transformed SGF Data:", sgfData);
+    } catch (e) {
+      console.error("Error parsing SGF:", e);
+      // If parsing fails, we'll just render the content without the SGF viewer
+    }
   }
 
   return (
@@ -86,9 +144,19 @@ export default async function BlogPost({ params }: BlogPostProps) {
             </div>
           </div>
 
+          {sgfData && (
+            <SGFViewer
+              title={sgfData.title}
+              description={sgfData.description}
+              moves={sgfData.moves}
+              boardSize={sgfData.boardSize}
+              initialCommentary={sgfData.initialCommentary}
+            />
+          )}
+
           <div
             className="prose prose-lg max-w-none"
-            dangerouslySetInnerHTML={{ __html: post.content || "" }}
+            dangerouslySetInnerHTML={{ __html: cleanContent || "" }}
           />
         </div>
       </div>

@@ -13,17 +13,21 @@ interface SGFViewerProps {
   moves: ViewerMove[];
   boardSize: number;
   initialCommentary: string;
-  totalMoves: number;
+  
 }
 
 export function SGFViewer({
   title,
   description,
   moves,
-  boardSize = 19,
+  boardSize: initialBoardSize = 19,
   initialCommentary = "Position before any moves are played.",
-  totalMoves
 }: SGFViewerProps) {
+  const boardSize = initialBoardSize > 0 ? initialBoardSize : 19;
+  if (initialBoardSize <= 0) {
+    console.error("Invalid boardSize received by SGFViewer, defaulting to 19:", initialBoardSize);
+  }
+  console.log("SGFViewer received boardSize:", boardSize);
   const [currentMoveNumber, setCurrentMoveNumber] = useState(0);
   const [board, setBoard] = useState<BoardState>(() => Array(boardSize).fill(null).map(() => Array(boardSize).fill(null)));
 
@@ -136,7 +140,7 @@ export function SGFViewer({
 
   return (
     <div className="grid lg:grid-cols-2 gap-8 items-start">
-      <div className="space-y-4">
+      <div className="space-y-4 flex-shrink-0 max-w-full">
         {/* The GoBoard now receives the dynamically calculated board state */}
         <GoBoard
           size={boardSize}
