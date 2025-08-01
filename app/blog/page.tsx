@@ -1,6 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { fetchGraphQL } from "@/lib/graphql-client";
+import {
+  GetAllBlogPostsDocument,
+  GetBlogCategoriesDocument,
+} from "@/lib/generated/graphql";
+
+interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  date: string;
+  excerpt: string;
+  content: string;
+  author: {
+    node: {
+      name: string;
+    };
+  };
+  categories: {
+    nodes: {
+      name: string;
+    }[];
+  };
+  tags: {
+    nodes: {
+      name: string;
+    }[];
+  };
+  featuredImage?: {
+    node: {
+      sourceUrl: string;
+    };
+  };
+}
 import {
   Card,
   CardContent,
@@ -16,28 +50,43 @@ import {
   User,
   ChevronRight,
 } from "lucide-react";
-import {
-  blogArticles,
-  blogCategories,
-  type BlogArticle,
-} from "@/data/blog-articles";
+
 
 export default function Blog() {
-  const [selectedCategory, setSelectedCategory] =
-    useState("All");
-  const [selectedArticle, setSelectedArticle] =
-    useState<BlogArticle | null>(null);
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedArticle, setSelectedArticle] = useState<BlogPost | null>(null);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const postsResponse = await fetchGraphQL(GetAllBlogPostsDocument);
+        setPosts(postsResponse.posts.nodes);
+
+        const categoriesResponse = await fetchGraphQL(GetBlogCategoriesDocument);
+        const categoryNames = categoriesResponse.categories.nodes.map(
+          (cat: { name: string }) => cat.name
+        );
+        setCategories(["All", ...categoryNames]);
+      } catch (error) {
+        console.error("Error fetching blog data:", error);
+      }
+    }
+    fetchData();
+  }, []);
 
   const filteredArticles =
     selectedCategory === "All"
-      ? blogArticles
-      : blogArticles.filter(
-          (article) => article.category === selectedCategory,
+      ? posts
+      : posts.filter((article) =>
+          article.categories.nodes.some(
+            (cat) => cat.name === selectedCategory
+          )
         );
 
-  const featuredArticle = blogArticles.find(
-    (article) => article.featured,
-  );
+  // For now, let's just pick the first article as featured if available
+  const featuredArticle = posts.length > 0 ? posts[0] : null;
 
   if (selectedArticle) {
     return (
@@ -56,12 +105,14 @@ export default function Blog() {
             {/* Article header */}
             <div className="space-y-4">
               <div className="flex flex-wrap gap-2">
-                <Badge variant="secondary">
-                  {selectedArticle.category}
-                </Badge>
-                {selectedArticle.tags.map((tag) => (
-                  <Badge key={tag} variant="outline">
-                    {tag}
+                {selectedArticle.categories.nodes.length > 0 && (
+                  <Badge variant="secondary">
+                    {selectedArticle.categories.nodes[0].name}
+                  </Badge>
+                )}
+                {selectedArticle.tags.nodes.map((tag) => (
+                  <Badge key={tag.name} variant="outline">
+                    {tag.name}
                   </Badge>
                 ))}
               </div>
@@ -73,7 +124,7 @@ export default function Blog() {
               <div className="flex flex-wrap items-center gap-6 text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <User className="h-4 w-4" />
-                  {selectedArticle.author}
+                  {selectedArticle.author.node.name}
                 </div>
                 <div className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
@@ -85,82 +136,16 @@ export default function Blog() {
                     day: "numeric",
                   })}
                 </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4" />
-                  {selectedArticle.readTime}
-                </div>
               </div>
             </div>
 
             {/* Article content */}
-            <div className="prose prose-lg max-w-none">
-              {selectedArticle.content
-                .split("\n\n")
-                .map((paragraph, index) => {
-                  if (paragraph.startsWith("## ")) {
-                    return (
-                      <h2
-                        key={index}
-                        className="text-2xl font-semibold mt-8 mb-4"
-                      >
-                        {paragraph.replace("## ", "")}
-                      </h2>
-                    );
-                  } else if (paragraph.startsWith("### ")) {
-                    return (
-                      <h3
-                        key={index}
-                        className="text-xl font-semibold mt-6 mb-3"
-                      >
-                        {paragraph.replace("### ", "")}
-                      </h3>
-                    );
-                  } else if (
-                    paragraph.startsWith("**") &&
-                    paragraph.endsWith("**")
-                  ) {
-                    return (
-                      <p
-                        key={index}
-                        className="font-semibold mb-4"
-                      >
-                        {paragraph.replace(/\*\*/g, "")}
-                      </p>
-                    );
-                  } else if (
-                    paragraph.startsWith("*[") &&
-                    paragraph.endsWith("]*")
-                  ) {
-                    return (
-                      <p
-                        key={index}
-                        className="italic text-muted-foreground mb-4"
-                      >
-                        {paragraph.replace(/\*\[|\]\*/g, "")}
-                      </p>
-                    );
-                  } else if (
-                    paragraph.startsWith("1. ") ||
-                    paragraph.startsWith("- ")
-                  ) {
-                    // Simple list handling - in a real app you'd want more sophisticated parsing
-                    return (
-                      <p key={index} className="mb-2">
-                        {paragraph}
-                      </p>
-                    );
-                  } else {
-                    return (
-                      <p
-                        key={index}
-                        className="mb-4 leading-relaxed"
-                      >
-                        {paragraph}
-                      </p>
-                    );
-                  }
-                })}
-            </div>
+            <div
+              className="prose prose-lg max-w-none"
+              dangerouslySetInnerHTML={{
+                __html: selectedArticle.content,
+              }}
+            ></div>
 
             {/* Related articles */}
             <div className="border-t pt-8">
@@ -168,19 +153,14 @@ export default function Blog() {
                 More Articles
               </h3>
               <div className="grid md:grid-cols-2 gap-6">
-                {blogArticles
-                  .filter(
-                    (article) =>
-                      article.id !== selectedArticle.id,
-                  )
+                {posts
+                  .filter((article) => article.id !== selectedArticle.id)
                   .slice(0, 2)
                   .map((article) => (
                     <Card
                       key={article.id}
                       className="cursor-pointer hover:shadow-md transition-shadow"
-                      onClick={() =>
-                        setSelectedArticle(article)
-                      }
+                      onClick={() => setSelectedArticle(article)}
                     >
                       <CardHeader>
                         <CardTitle className="text-lg">
@@ -193,8 +173,16 @@ export default function Blog() {
                       <CardContent>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <span>{article.author}</span>
-                            <span>{article.readTime}</span>
+                            <span>{article.author.node.name}</span>
+                            <span>
+                              {new Date(article.date).toLocaleDateString(
+                                "en-US",
+                                {
+                                  month: "short",
+                                  day: "numeric",
+                                }
+                              )}
+                            </span>
                           </div>
                           <ChevronRight className="h-4 w-4" />
                         </div>
@@ -240,9 +228,11 @@ export default function Blog() {
                 <CardHeader>
                   <div className="flex items-center gap-2 mb-2">
                     <Badge variant="default">Featured</Badge>
-                    <Badge variant="secondary">
-                      {featuredArticle.category}
-                    </Badge>
+                    {featuredArticle.categories.nodes.length > 0 && (
+                      <Badge variant="secondary">
+                        {featuredArticle.categories.nodes[0].name}
+                      </Badge>
+                    )}
                   </div>
                   <CardTitle className="text-2xl">
                     {featuredArticle.title}
@@ -256,7 +246,7 @@ export default function Blog() {
                     <div className="flex items-center gap-6 text-sm text-muted-foreground">
                       <div className="flex items-center gap-2">
                         <User className="h-4 w-4" />
-                        {featuredArticle.author}
+                        {featuredArticle.author.node.name}
                       </div>
                       <div className="flex items-center gap-2">
                         <Calendar className="h-4 w-4" />
@@ -266,10 +256,6 @@ export default function Blog() {
                           month: "short",
                           day: "numeric",
                         })}
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-4 w-4" />
-                        {featuredArticle.readTime}
                       </div>
                     </div>
                     <Button>Read Article</Button>
@@ -285,7 +271,7 @@ export default function Blog() {
               Browse by Category
             </h2>
             <div className="flex flex-wrap gap-2">
-              {blogCategories.map((category) => (
+              {categories.map((category) => (
                 <Button
                   key={category}
                   variant={
@@ -312,7 +298,7 @@ export default function Blog() {
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredArticles
-                .filter((article) => !article.featured) // Don't show featured article twice
+                .filter((article) => article.id !== featuredArticle?.id) // Don't show featured article twice
                 .map((article) => (
                   <Card
                     key={article.id}
@@ -321,9 +307,11 @@ export default function Blog() {
                   >
                     <CardHeader>
                       <div className="flex items-center gap-2 mb-2">
-                        <Badge variant="secondary">
-                          {article.category}
-                        </Badge>
+                        {article.categories.nodes.length > 0 && (
+                          <Badge variant="secondary">
+                            {article.categories.nodes[0].name}
+                          </Badge>
+                        )}
                       </div>
                       <CardTitle className="text-lg">
                         {article.title}
@@ -335,23 +323,31 @@ export default function Blog() {
                     <CardContent>
                       <div className="space-y-4">
                         <div className="flex flex-wrap gap-1">
-                          {article.tags
+                          {article.tags.nodes
                             .slice(0, 3)
                             .map((tag) => (
                               <Badge
-                                key={tag}
+                                key={tag.name}
                                 variant="outline"
                                 className="text-xs"
                               >
-                                {tag}
+                                {tag.name}
                               </Badge>
                             ))}
                         </div>
 
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                            <span>{article.author}</span>
-                            <span>{article.readTime}</span>
+                            <span>{article.author.node.name}</span>
+                            <span>
+                              {new Date(article.date).toLocaleDateString(
+                                "en-US",
+                                {
+                                  month: "short",
+                                  day: "numeric",
+                                }
+                              )}
+                            </span>
                           </div>
                           <ChevronRight className="h-4 w-4" />
                         </div>

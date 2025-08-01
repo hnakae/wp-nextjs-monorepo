@@ -8,3 +8,7 @@ export const graphqlClient = new GraphQLClient(endpoint, {
   headers: { 'Content-Type': 'application/json' },
 });
 export const sdk = getSdk(graphqlClient);
+
+export async function fetchGraphQL(document: any, variables?: any) {
+  return sdk[document.definitions[0].name.value](variables);
+}

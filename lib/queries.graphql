@@ -31,3 +31,78 @@ query GetAllPostSlugs {
     }
   }
 }
+
+# Fetch all blog posts for the blog page
+query GetAllBlogPosts {
+  posts(first: 100, where: {status: PUBLISH}) {
+    nodes {
+      id
+      title
+      slug
+      date
+      excerpt
+      content
+      author {
+        node {
+          name
+        }
+      }
+      categories {
+        nodes {
+          name
+        }
+      }
+      tags {
+        nodes {
+          name
+        }
+      }
+      featuredImage {
+        node {
+          sourceUrl
+        }
+      }
+    }
+  }
+}
+
+# Fetch all blog categories
+query GetBlogCategories {
+  categories(first: 100) {
+    nodes {
+      name
+    }
+  }
+}
+
+# Fetch a single blog post by slug for the detailed view
+query GetBlogPostBySlug($slug: String!) {
+  postBy(slug: $slug) {
+    id
+    title
+    content
+    date
+    slug
+    excerpt
+    author {
+      node {
+        name
+      }
+    }
+    categories {
+      nodes {
+        name
+      }
+    }
+    tags {
+      nodes {
+        name
+      }
+    }
+    featuredImage {
+      node {
+        sourceUrl
+      }
+    }
+  }
+}

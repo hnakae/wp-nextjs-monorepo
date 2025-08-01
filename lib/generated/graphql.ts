@@ -9587,6 +9587,23 @@ export type GetAllPostSlugsQueryVariables = Exact<{ [key: string]: never; }>;
 
 export type GetAllPostSlugsQuery = { __typename?: 'RootQuery', posts?: { __typename?: 'RootQueryToPostConnection', nodes: Array<{ __typename?: 'Post', slug?: string | null }> } | null };
 
+export type GetAllBlogPostsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAllBlogPostsQuery = { __typename?: 'RootQuery', posts?: { __typename?: 'RootQueryToPostConnection', nodes: Array<{ __typename?: 'Post', id: string, title?: string | null, slug?: string | null, date?: string | null, excerpt?: string | null, content?: string | null, author?: { __typename?: 'NodeWithAuthorToUserConnectionEdge', node: { __typename?: 'User', name?: string | null } } | null, categories?: { __typename?: 'PostToCategoryConnection', nodes: Array<{ __typename?: 'Category', name?: string | null }> } | null, tags?: { __typename?: 'PostToTagConnection', nodes: Array<{ __typename?: 'Tag', name?: string | null }> } | null, featuredImage?: { __typename?: 'NodeWithFeaturedImageToMediaItemConnectionEdge', node: { __typename?: 'MediaItem', sourceUrl?: string | null } } | null }> } | null };
+
+export type GetBlogCategoriesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetBlogCategoriesQuery = { __typename?: 'RootQuery', categories?: { __typename?: 'RootQueryToCategoryConnection', nodes: Array<{ __typename?: 'Category', name?: string | null }> } | null };
+
+export type GetBlogPostBySlugQueryVariables = Exact<{
+  slug: Scalars['String']['input'];
+}>;
+
+
+export type GetBlogPostBySlugQuery = { __typename?: 'RootQuery', postBy?: { __typename?: 'Post', id: string, title?: string | null, content?: string | null, date?: string | null, slug?: string | null, excerpt?: string | null, author?: { __typename?: 'NodeWithAuthorToUserConnectionEdge', node: { __typename?: 'User', name?: string | null } } | null, categories?: { __typename?: 'PostToCategoryConnection', nodes: Array<{ __typename?: 'Category', name?: string | null }> } | null, tags?: { __typename?: 'PostToTagConnection', nodes: Array<{ __typename?: 'Tag', name?: string | null }> } | null, featuredImage?: { __typename?: 'NodeWithFeaturedImageToMediaItemConnectionEdge', node: { __typename?: 'MediaItem', sourceUrl?: string | null } } | null } | null };
+
 
 export const GetLatestPostsDocument = gql`
     query GetLatestPosts($first: Int!) {
@@ -9620,6 +9637,81 @@ export const GetAllPostSlugsDocument = gql`
   }
 }
     `;
+export const GetAllBlogPostsDocument = gql`
+    query GetAllBlogPosts {
+  posts(first: 100, where: {status: PUBLISH}) {
+    nodes {
+      id
+      title
+      slug
+      date
+      excerpt
+      content
+      author {
+        node {
+          name
+        }
+      }
+      categories {
+        nodes {
+          name
+        }
+      }
+      tags {
+        nodes {
+          name
+        }
+      }
+      featuredImage {
+        node {
+          sourceUrl
+        }
+      }
+    }
+  }
+}
+    `;
+export const GetBlogCategoriesDocument = gql`
+    query GetBlogCategories {
+  categories(first: 100) {
+    nodes {
+      name
+    }
+  }
+}
+    `;
+export const GetBlogPostBySlugDocument = gql`
+    query GetBlogPostBySlug($slug: String!) {
+  postBy(slug: $slug) {
+    id
+    title
+    content
+    date
+    slug
+    excerpt
+    author {
+      node {
+        name
+      }
+    }
+    categories {
+      nodes {
+        name
+      }
+    }
+    tags {
+      nodes {
+        name
+      }
+    }
+    featuredImage {
+      node {
+        sourceUrl
+      }
+    }
+  }
+}
+    `;
 
 export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, string>) => Promise<T>, operationName: string, operationType?: string, variables?: any) => Promise<T>;
 
@@ -9636,6 +9728,15 @@ export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = 
     },
     GetAllPostSlugs(variables?: GetAllPostSlugsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetAllPostSlugsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<GetAllPostSlugsQuery>({ document: GetAllPostSlugsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'GetAllPostSlugs', 'query', variables);
+    },
+    GetAllBlogPosts(variables?: GetAllBlogPostsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetAllBlogPostsQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetAllBlogPostsQuery>({ document: GetAllBlogPostsDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'GetAllBlogPosts', 'query', variables);
+    },
+    GetBlogCategories(variables?: GetBlogCategoriesQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetBlogCategoriesQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetBlogCategoriesQuery>({ document: GetBlogCategoriesDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'GetBlogCategories', 'query', variables);
+    },
+    GetBlogPostBySlug(variables: GetBlogPostBySlugQueryVariables, requestHeaders?: GraphQLClientRequestHeaders, signal?: RequestInit['signal']): Promise<GetBlogPostBySlugQuery> {
+      return withWrapper((wrappedRequestHeaders) => client.request<GetBlogPostBySlugQuery>({ document: GetBlogPostBySlugDocument, variables, requestHeaders: { ...requestHeaders, ...wrappedRequestHeaders }, signal }), 'GetBlogPostBySlug', 'query', variables);
     }
   };
 }
