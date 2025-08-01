@@ -37,7 +37,7 @@ export const dummyBlogPosts: BlogPost[] = [
     excerpt: "<p>This is a <strong>dummy excerpt</strong> for the first article. It covers the fundamental rules and concepts of the game of Go.</p>",
     content: "<h2>Introduction to Go</h2><p>Go is an ancient board game for two players. It is played with black and white stones on a grid of intersecting lines.</p><h3>Objective</h3><p>The objective of Go is to surround a larger total area of the board with your stones than your opponent.</p>",
     author: { node: { name: "Dummy Author" } },
-    categories: { nodes: [{ name: "Beginner" }] },
+    categories: { nodes: [{ name: "Beginner" }, { name: "Featured" }] },
     tags: { nodes: [{ name: "Rules" }, { name: "Strategy" }] },
   },
   {
