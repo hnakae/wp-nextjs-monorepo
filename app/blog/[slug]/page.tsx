@@ -8,6 +8,7 @@ import { notFound } from "next/navigation";
 // import Link from "next/link";
 import { Calendar, User } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { dummyBlogPosts } from "@/data/dummy-blog-data";
 
 interface BlogPostProps {
   params: {
@@ -16,19 +17,30 @@ interface BlogPostProps {
 }
 
 export async function generateStaticParams() {
-  const response = await fetchGraphQL(GetAllBlogPostsDocument);
-  const posts = response.posts.nodes;
+  if (process.env.NEXT_PUBLIC_USE_DUMMY_DATA === "true") {
+    return dummyBlogPosts.map((post) => ({
+      slug: post.slug,
+    }));
+  } else {
+    const response = await fetchGraphQL(GetAllBlogPostsDocument);
+    const posts = response.posts.nodes;
 
-  return posts.map((post: { slug: string }) => ({
-    slug: post.slug,
-  }));
+    return posts.map((post: { slug: string }) => ({
+      slug: post.slug,
+    }));
+  }
 }
 
 export default async function BlogPost({ params }: BlogPostProps) {
   const { slug } = params;
 
-  const response = await fetchGraphQL(GetBlogPostBySlugDocument, { slug });
-  const post = response.postBy;
+  let post;
+  if (process.env.NEXT_PUBLIC_USE_DUMMY_DATA === "true") {
+    post = dummyBlogPosts.find((p) => p.slug === slug);
+  } else {
+    const response = await fetchGraphQL(GetBlogPostBySlugDocument, { slug });
+    post = response.postBy;
+  }
 
   if (!post) {
     notFound();

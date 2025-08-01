@@ -6,6 +6,7 @@ import {
   GetAllBlogPostsDocument,
   GetBlogCategoriesDocument,
 } from "@/lib/generated/graphql";
+import { dummyBlogPosts, dummyBlogCategories } from "@/data/dummy-blog-data";
 
 interface BlogPost {
   id: string;
@@ -60,17 +61,25 @@ export default function Blog() {
 
   useEffect(() => {
     async function fetchData() {
-      try {
-        const postsResponse = await fetchGraphQL(GetAllBlogPostsDocument);
-        setPosts(postsResponse.posts.nodes);
+      if (process.env.NEXT_PUBLIC_USE_DUMMY_DATA === "true") {
+        setPosts(dummyBlogPosts);
+        setCategories(dummyBlogCategories);
+      } else {
+        try {
+          const postsResponse = await fetchGraphQL(GetAllBlogPostsDocument);
+          setPosts(postsResponse.posts.nodes);
 
-        const categoriesResponse = await fetchGraphQL(GetBlogCategoriesDocument);
-        const categoryNames = categoriesResponse.categories.nodes.map(
-          (cat: { name: string }) => cat.name
-        );
-        setCategories(["All", ...categoryNames]);
-      } catch (error) {
-        console.error("Error fetching blog data:", error);
+          const categoriesResponse = await fetchGraphQL(GetBlogCategoriesDocument);
+          const categoryNames = categoriesResponse.categories.nodes.map(
+            (cat: { name: string }) => cat.name
+          );
+          setCategories(["All", ...categoryNames]);
+        } catch (error) {
+          console.error("Error fetching blog data:", error);
+          // Fallback to dummy data if API fetch fails
+          setPosts(dummyBlogPosts);
+          setCategories(dummyBlogCategories);
+        }
       }
     }
     fetchData();
