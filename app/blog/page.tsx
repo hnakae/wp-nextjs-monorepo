@@ -268,7 +268,9 @@ export default function Blog() {
               Go insights, tournament experiences, or teaching
               tips with our community.
             </p>
-            <Button>Submit an Article</Button>
+            <Link href="/create-article">
+              <Button>Submit an Article</Button>
+            </Link>
           </div>
         </div>
       </div>

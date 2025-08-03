@@ -120,7 +120,7 @@ export function Blog() {
                   moves={selectedSGF.moves}
                   boardSize={selectedSGF.boardSize}
                   initialCommentary={selectedSGF.initialCommentary}
-                  totalMoves={selectedSGF.totalMoves}
+                  // totalMoves={selectedSGF.totalMoves}
                 />
               ) : (
                 <div className="text-center py-12">
@@ -129,6 +129,14 @@ export function Blog() {
               )}
             </TabsContent>
           </Tabs>
+        </div>
+
+        <div className="text-center pt-12">
+          <h3 className="text-2xl font-semibold">Want to contribute?</h3>
+          <p className="text-muted-foreground mt-2">Share your own game analyses or Go-related articles.</p>
+          <Button asChild className="mt-4">
+            <a href="/create-article">Create New Article</a>
+          </Button>
         </div>
       </div>
     </section>
