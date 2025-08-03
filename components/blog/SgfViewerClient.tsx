@@ -5,7 +5,7 @@ import { SGFViewer } from "@/components/go-club/SGFViewer";
 import { SGFUploader } from "@/components/go-club/SGFUploader";
 import { SGFParser } from "@/lib/sgf-parser";
 import { SGFData, ParsedSGF } from "@/lib/sgf-types";
-import { Buffer } from "buffer";
+// import { Buffer } from "buffer";
 
 const SGF_DATA_PREFIX = "<!-- SGF_DATA:";
 const SGF_DATA_SUFFIX = "-->";
@@ -40,7 +40,7 @@ export default function SgfViewerClient({
     setUploadedSGFData(parsedSGF);
   };
 
-  const { sgfString, cleanContent } = extractAndDecodeSGF(initialPostContent || "");
+  const { sgfString } = extractAndDecodeSGF(initialPostContent || "");
   let sgfData: SGFData | null = null;
 
   // Prioritize uploaded SGF data if available

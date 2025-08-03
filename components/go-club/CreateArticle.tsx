@@ -341,6 +341,8 @@ Write naturally about Go concepts, strategies, or experiences!"
                                 setSelectedSGF(updatedSGF);
                                 setForm(prev => ({ ...prev, sgfData: updatedSGF }));
                               }}
+                              gameInfo={selectedSGF.gameInfo}
+                              totalMoves={selectedSGF.totalMoves}
                             />
                           </div>
                         ) : (
