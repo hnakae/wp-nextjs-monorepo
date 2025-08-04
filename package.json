@@ -13,6 +13,7 @@
     "codegen": "graphql-codegen --config codegen.yml"
   },
   "dependencies": {
+    "@clerk/nextjs": "^6.28.1",
     "@radix-ui/react-dialog": "^1.0.0",
     "@radix-ui/react-label": "^2.1.7",
     "@radix-ui/react-select": "^2.2.5",
