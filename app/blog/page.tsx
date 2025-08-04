@@ -52,6 +52,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
+import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
 
 
 export default function Blog() {
@@ -268,9 +269,18 @@ export default function Blog() {
               Go insights, tournament experiences, or teaching
               tips with our community.
             </p>
-            <Link href="/create-article">
-              <Button>Submit an Article</Button>
-            </Link>
+            <SignedIn>
+              <Link href="/create-article">
+                <Button>Submit an Article</Button>
+              </Link>
+            </SignedIn>
+            <SignedOut>
+              <SignInButton mode="modal">
+                <Button asChild>
+                  <a>Submit an Article</a>
+                </Button>
+              </SignInButton>
+            </SignedOut>
           </div>
         </div>
       </div>

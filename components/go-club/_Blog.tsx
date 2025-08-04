@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SGFParser } from '@/lib/sgf-parser';
 import { sampleSGFs, sampleGameDescriptions } from '@/data/sample-sgfs';
 import { ParsedSGF, SGFData, ViewerMove } from '@/lib/sgf-types';
+// import { SignInButton, SignedIn, SignedOut } from '@clerk/nextjs';
 
 export function Blog() {
   const [selectedSGF, setSelectedSGF] = useState<SGFData | null>(null);
