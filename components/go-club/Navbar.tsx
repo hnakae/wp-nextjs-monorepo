@@ -6,14 +6,6 @@ import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/co
 import { Menu } from "lucide-react";
 import Link from "next/link";
 
-import {
-  SignInButton,
-  SignUpButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from '@clerk/nextjs'
-
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -47,24 +39,6 @@ export function Navbar() {
               ))}
             </div>
           </div>
-
-          <header className="flex justify-end items-center p-4 gap-4 h-16">
-            <SignedOut>
-              <SignInButton mode="modal">
-                <a className="px-3 py-2 rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer">
-                  Sign In
-                </a>
-              </SignInButton>
-              <SignUpButton mode="modal">
-                <a className="px-3 py-2 rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors cursor-pointer">
-                  Sign Up
-                </a>
-              </SignUpButton>
-            </SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-          </header>
 
           {/* Mobile Navigation */}
           <div className="md:hidden">

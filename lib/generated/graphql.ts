@@ -4811,6 +4811,8 @@ export type PostPostFormatsNodeInput = {
 
 /** Publishing status that controls the visibility and editorial state of content. Determines whether content is published, pending review, in draft state, or private. */
 export enum PostStatusEnum {
+  /** Objects with the acf-disabled status */
+  AcfDisabled = 'ACF_DISABLED',
   /** Automatically saved content that has not been manually saved */
   AutoDraft = 'AUTO_DRAFT',
   /** Content that is saved but not yet published or visible to the public */

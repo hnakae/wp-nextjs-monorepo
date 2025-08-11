@@ -52,8 +52,6 @@ import {
   ChevronRight,
 } from "lucide-react";
 import Link from "next/link";
-import { SignedIn, SignedOut, SignInButton } from "@clerk/nextjs";
-
 
 export default function Blog() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
@@ -257,30 +255,6 @@ export default function Blog() {
                   </Link>
                 ))}
             </div>
-          </div>
-
-          {/* Call to action */}
-          <div className="text-center space-y-4 border-t pt-16">
-            <h2 className="text-2xl font-semibold">
-              Want to Contribute?
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              We welcome articles from club members! Share your
-              Go insights, tournament experiences, or teaching
-              tips with our community.
-            </p>
-            <SignedIn>
-              <Link href="/create-article">
-                <Button>Submit an Article</Button>
-              </Link>
-            </SignedIn>
-            <SignedOut>
-              <SignInButton mode="modal">
-                <Button asChild>
-                  <a>Submit an Article</a>
-                </Button>
-              </SignInButton>
-            </SignedOut>
           </div>
         </div>
       </div>
