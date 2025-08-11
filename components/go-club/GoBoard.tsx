@@ -51,7 +51,7 @@ export function GoBoard({
       <svg
         width={svgSize}
         height={svgSize}
-        className="border border-border rounded-lg bg-amber-200"
+        className="border border-border rounded-lg bg-amber-200 w-full h-auto"
         viewBox={`0 0 ${svgSize} ${svgSize}`}
       >
         {/* Grid lines */}

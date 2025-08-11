@@ -75,7 +75,7 @@ export default function SgfViewerClient({
   }
 
   return (
-    <div className="grid lg:grid-cols-2 gap-8 items-start">
+    <div className="grid gap-8 items-start">
       {sgfData && (
         <SGFViewer
           title={sgfData.title}

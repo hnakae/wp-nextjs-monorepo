@@ -139,7 +139,7 @@ export function SGFViewer({
   const goToLastMove = () => setCurrentMoveNumber(moves.length);
 
   return (
-    <div className="grid lg:grid-cols-2 gap-8 items-start">
+    <div className="grid gap-8 items-start">
       <div className="space-y-4 flex-shrink-0 max-w-full">
         {/* The GoBoard now receives the dynamically calculated board state */}
         <GoBoard
@@ -174,9 +174,9 @@ export function SGFViewer({
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-4 overflow-y-auto">
         <Card>
-          <CardHeader><CardTitle>{title}</CardTitle><CardDescription>{description}</CardDescription></CardHeader>
+          <CardHeader className='py-4'><CardTitle>{title}</CardTitle><CardDescription>{description}</CardDescription></CardHeader>
         </Card>
         <Card>
           <CardHeader><CardTitle className="text-lg">{moveTitle}</CardTitle></CardHeader>
