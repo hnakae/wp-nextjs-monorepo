@@ -104,5 +104,12 @@ query GetBlogPostBySlug($slug: String!) {
         sourceUrl
       }
     }
+    postSgfData {
+      sgfFile {
+        node {
+          mediaItemUrl
+        }
+      }
+    }
   }
 }

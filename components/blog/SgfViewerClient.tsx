@@ -1,50 +1,57 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { SGFViewer } from "@/components/go-club/SGFViewer";
-import { SGFUploader } from "@/components/go-club/SGFUploader";
 import { SGFParser } from "@/lib/sgf-parser";
 import { SGFData, ParsedSGF } from "@/lib/sgf-types";
 // import { Buffer } from "buffer";
 
-const SGF_DATA_PREFIX = "<!-- SGF_DATA:";
-const SGF_DATA_SUFFIX = "-->";
 
-function extractAndDecodeSGF(content: string): { sgfString: string | null; cleanContent: string } {
-  const startIndex = content.indexOf(SGF_DATA_PREFIX);
-  const endIndex = content.indexOf(SGF_DATA_SUFFIX, startIndex);
 
-  if (startIndex !== -1 && endIndex !== -1) {
-    const sgfString = content.substring(startIndex + SGF_DATA_PREFIX.length, endIndex).trim();
-    const cleanContent = content.substring(0, startIndex) + content.substring(endIndex + SGF_DATA_SUFFIX.length);
-    return { sgfString, cleanContent };
-  }
-  return { sgfString: null, cleanContent: content };
-}
+
 
 interface SgfViewerClientProps {
   initialPostContent: string;
   postTitle: string;
   postExcerpt: string;
+  sgfUrl: string | null;
 }
 
 export default function SgfViewerClient({
   initialPostContent,
   postTitle,
   postExcerpt,
+  sgfUrl,
 }: SgfViewerClientProps) {
   console.log("SgfViewerClient: Rendering...");
-  const [uploadedSGFData, setUploadedSGFData] = useState<ParsedSGF | null>(null);
+  const [fetchedSGFString, setFetchedSGFString] = useState<string | null>(null);
 
-  const handleSGFSelect = (parsedSGF: ParsedSGF | null) => {
-    setUploadedSGFData(parsedSGF);
-  };
+  useEffect(() => {
+    if (sgfUrl) {
+      console.log('Fetching SGF from:', sgfUrl);
+      fetch(sgfUrl)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.text();
+        })
+        .then(sgfText => {
+          setFetchedSGFString(sgfText);
+        })
+        .catch(error => {
+          console.error("Error fetching SGF file:", error);
+          setFetchedSGFString(null); // Clear SGF string on error
+        });
+    } else {
+      setFetchedSGFString(null); // Clear SGF string if no URL
+    }
+  }, [sgfUrl]);
 
-  const { sgfString } = extractAndDecodeSGF(initialPostContent || "");
   let sgfData: SGFData | null = null;
 
-  // Prioritize uploaded SGF data if available
-  const currentSGF = uploadedSGFData || (sgfString ? SGFParser.parse(sgfString) : null);
+  // Prioritize fetched SGF data if available
+  const currentSGF = fetchedSGFString ? SGFParser.parse(fetchedSGFString) : null;
 
   if (currentSGF) {
     try {
@@ -78,7 +85,7 @@ export default function SgfViewerClient({
           initialCommentary={sgfData.initialCommentary}
         />
       )}
-      <SGFUploader onSGFSelect={handleSGFSelect} />
+      
     </div>
   );
 }

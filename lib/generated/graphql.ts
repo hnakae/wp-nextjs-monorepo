@@ -17,6 +17,33 @@ export type Scalars = {
   Float: { input: number; output: number; }
 };
 
+/** A Field Group managed by ACF */
+export type AcfFieldGroup = {
+  /**
+   * The name of the field group
+   * @deprecated Use __typename instead
+   */
+  fieldGroupName?: Maybe<Scalars['String']['output']>;
+};
+
+/** Fields associated with an ACF Field Group */
+export type AcfFieldGroupFields = {
+  /**
+   * The name of the field group
+   * @deprecated Use __typename instead
+   */
+  fieldGroupName?: Maybe<Scalars['String']['output']>;
+};
+
+/** Connection between the PostSgfData_Fields type and the MediaItem type */
+export type AcfMediaItemConnectionEdge = Edge & MediaItemConnectionEdge & OneToOneConnection & {
+  __typename?: 'AcfMediaItemConnectionEdge';
+  /** Opaque reference to the nodes position in the connection. Value can be used with pagination args. */
+  cursor?: Maybe<Scalars['String']['output']>;
+  /** The node of the connection, without the edges */
+  node: MediaItem;
+};
+
 /** Avatars are profile images for users. WordPress by default uses the Gravatar service to host and fetch avatars from. */
 export type Avatar = {
   __typename?: 'Avatar';
@@ -3376,6 +3403,8 @@ export enum MimeTypeEnum {
   ApplicationWordperfect = 'APPLICATION_WORDPERFECT',
   /** application/x-7z-compressed mime type. */
   ApplicationX_7ZCompressed = 'APPLICATION_X_7Z_COMPRESSED',
+  /** application/x-go-sgf mime type. */
+  ApplicationXGoSgf = 'APPLICATION_X_GO_SGF',
   /** application/x-gzip mime type. */
   ApplicationXGzip = 'APPLICATION_X_GZIP',
   /** application/x-tar mime type. */
@@ -4128,7 +4157,7 @@ export enum PluginStatusEnum {
 }
 
 /** A chronological content entry typically used for blog posts, news articles, or similar date-based content. */
-export type Post = ContentNode & DatabaseIdentifier & MenuItemLinkable & Node & NodeWithAuthor & NodeWithComments & NodeWithContentEditor & NodeWithExcerpt & NodeWithFeaturedImage & NodeWithRevisions & NodeWithTemplate & NodeWithTitle & NodeWithTrackbacks & Previewable & UniformResourceIdentifiable & {
+export type Post = ContentNode & DatabaseIdentifier & MenuItemLinkable & Node & NodeWithAuthor & NodeWithComments & NodeWithContentEditor & NodeWithExcerpt & NodeWithFeaturedImage & NodeWithRevisions & NodeWithTemplate & NodeWithTitle & NodeWithTrackbacks & Previewable & UniformResourceIdentifiable & WithAcfPostSgfData & {
   __typename?: 'Post';
   /**
    * The ancestors of the content node.
@@ -4229,6 +4258,8 @@ export type Post = ContentNode & DatabaseIdentifier & MenuItemLinkable & Node & 
    * @deprecated Deprecated in favor of the databaseId field
    */
   postId: Scalars['Int']['output'];
+  /** Fields of the PostSgfData ACF Field Group */
+  postSgfData?: Maybe<PostSgfData>;
   /** Connection between the Post type and the post type */
   preview?: Maybe<PostToPreviewConnectionEdge>;
   /** The database id of the preview node */
@@ -4807,6 +4838,29 @@ export type PostPostFormatsNodeInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   /** The slug of the postFormat. If no ID is present, this field will be used to make a connection. If no existing term exists with this slug, this field will be used as a fallback to the Name field when creating a new term to connect to, if term creation is enabled as a nested mutation. */
   slug?: InputMaybe<Scalars['String']['input']>;
+};
+
+/** The &quot;PostSgfData&quot; Field Group. Added to the Schema by &quot;WPGraphQL for ACF&quot;. */
+export type PostSgfData = AcfFieldGroup & AcfFieldGroupFields & PostSgfData_Fields & {
+  __typename?: 'PostSgfData';
+  /**
+   * The name of the field group
+   * @deprecated Use __typename instead
+   */
+  fieldGroupName?: Maybe<Scalars['String']['output']>;
+  /** Field of the &quot;file&quot; Field Type added to the schema as part of the &quot;PostSgfData&quot; Field Group */
+  sgfFile?: Maybe<AcfMediaItemConnectionEdge>;
+};
+
+/** Interface representing fields of the ACF &quot;PostSgfData&quot; Field Group */
+export type PostSgfData_Fields = {
+  /**
+   * The name of the field group
+   * @deprecated Use __typename instead
+   */
+  fieldGroupName?: Maybe<Scalars['String']['output']>;
+  /** Field of the &quot;file&quot; Field Type added to the schema as part of the &quot;PostSgfData&quot; Field Group */
+  sgfFile?: Maybe<AcfMediaItemConnectionEdge>;
 };
 
 /** Publishing status that controls the visibility and editorial state of content. Determines whether content is published, pending review, in draft state, or private. */
@@ -9559,6 +9613,12 @@ export type WpPageInfo = {
   startCursor?: Maybe<Scalars['String']['output']>;
 };
 
+/** Provides access to fields of the &quot;PostSgfData&quot; ACF Field Group via the &quot;postSgfData&quot; field */
+export type WithAcfPostSgfData = {
+  /** Fields of the PostSgfData ACF Field Group */
+  postSgfData?: Maybe<PostSgfData>;
+};
+
 /** The writing setting type */
 export type WritingSettings = {
   __typename?: 'WritingSettings';
@@ -9604,7 +9664,7 @@ export type GetBlogPostBySlugQueryVariables = Exact<{
 }>;
 
 
-export type GetBlogPostBySlugQuery = { __typename?: 'RootQuery', postBy?: { __typename?: 'Post', id: string, title?: string | null, content?: string | null, date?: string | null, slug?: string | null, excerpt?: string | null, author?: { __typename?: 'NodeWithAuthorToUserConnectionEdge', node: { __typename?: 'User', name?: string | null } } | null, categories?: { __typename?: 'PostToCategoryConnection', nodes: Array<{ __typename?: 'Category', name?: string | null }> } | null, tags?: { __typename?: 'PostToTagConnection', nodes: Array<{ __typename?: 'Tag', name?: string | null }> } | null, featuredImage?: { __typename?: 'NodeWithFeaturedImageToMediaItemConnectionEdge', node: { __typename?: 'MediaItem', sourceUrl?: string | null } } | null } | null };
+export type GetBlogPostBySlugQuery = { __typename?: 'RootQuery', postBy?: { __typename?: 'Post', id: string, title?: string | null, content?: string | null, date?: string | null, slug?: string | null, excerpt?: string | null, author?: { __typename?: 'NodeWithAuthorToUserConnectionEdge', node: { __typename?: 'User', name?: string | null } } | null, categories?: { __typename?: 'PostToCategoryConnection', nodes: Array<{ __typename?: 'Category', name?: string | null }> } | null, tags?: { __typename?: 'PostToTagConnection', nodes: Array<{ __typename?: 'Tag', name?: string | null }> } | null, featuredImage?: { __typename?: 'NodeWithFeaturedImageToMediaItemConnectionEdge', node: { __typename?: 'MediaItem', sourceUrl?: string | null } } | null, postSgfData?: { __typename?: 'PostSgfData', sgfFile?: { __typename?: 'AcfMediaItemConnectionEdge', node: { __typename?: 'MediaItem', mediaItemUrl?: string | null } } | null } | null } | null };
 
 
 export const GetLatestPostsDocument = gql`
@@ -9709,6 +9769,13 @@ export const GetBlogPostBySlugDocument = gql`
     featuredImage {
       node {
         sourceUrl
+      }
+    }
+    postSgfData {
+      sgfFile {
+        node {
+          mediaItemUrl
+        }
       }
     }
   }

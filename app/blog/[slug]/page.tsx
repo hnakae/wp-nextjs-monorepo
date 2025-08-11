@@ -96,6 +96,7 @@ export default async function BlogPost({ params }: BlogPostProps) {
             initialPostContent={post.content || ""}
             postTitle={post.title}
             postExcerpt={post.excerpt || ""}
+            sgfUrl={post.postSgfData?.sgfFile?.node?.mediaItemUrl || null}
           />
 
           <div
