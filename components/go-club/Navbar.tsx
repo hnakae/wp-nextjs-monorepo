@@ -10,11 +10,11 @@ export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   const navItems = [
-    { name: "Home", href: "/#home" },
-    { name: "Blog", href: "/blog" },
+    { name: "Home", href: "/" },
     { name: "About", href: "/#about" },
     { name: "Meetings", href: "/#meetings" },
-    { name: "Contact", href: "/#contact" }
+    { name: "Contact", href: "/#contact" },
+    { name: "Blog", href: "/blog" },
   ];
 
   return (
@@ -29,13 +29,13 @@ export function Navbar() {
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-4">
               {navItems.map((item) => (
-                <a
+                <Link
                   key={item.name}
                   href={item.href}
                   className="px-3 py-2 rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
                 >
                   {item.name}
-                </a>
+                </Link>
               ))}
             </div>
           </div>
@@ -55,14 +55,14 @@ export function Navbar() {
                 </SheetHeader>
                 <div className="flex flex-col space-y-4 p-4 pt-10">
                   {navItems.map((item) => (
-                    <a
+                    <Link
                       key={item.name}
                       href={item.href}
                       className="block px-3 py-2 rounded-md text-base font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
                       onClick={() => setIsOpen(false)}
                     >
                       {item.name}
-                    </a>
+                    </Link>
                   ))}
                 </div>
               </SheetContent>
