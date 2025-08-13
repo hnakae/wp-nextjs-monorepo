@@ -103,7 +103,7 @@ export default function Blog() {
         <div className="space-y-16">
           {/* Header */}
           <div className="text-center space-y-4 pt-8">
-            <h1 className="text-4xl md:text-5xl font-bold">
+            <h1 className="text-4xl md:text-5xl font-semibold">
               Club Blog & Articles
             </h1>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
